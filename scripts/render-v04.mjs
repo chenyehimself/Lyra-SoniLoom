@@ -1,0 +1,10 @@
+import {writeFileSync,readFileSync} from 'node:fs';import assert from 'node:assert/strict';
+import {createProject,createLayer,ProjectStore,serializeProject,parseProject,verifyAssets} from '../src/project.mjs';import {importWav} from '../src/assets.mjs';import {encodeWav} from '../src/wav.mjs';import {renderProject} from '../src/engine.mjs';
+const root=new URL('../outputs/v0.4/',import.meta.url),sr=48000;
+const wave=Float32Array.from({length:sr*1.5},(_,i)=>{const t=i/sr-.25;if(t<0)return 0;return Math.exp(-t*8)*(.32*Math.sin(2*Math.PI*317*t)+.1*Math.sin(2*Math.PI*931*t));});
+const bytes=encodeWav([wave],sr);writeFileSync(new URL('synthetic-test-source.wav',root),new Uint8Array(bytes));
+const p=createProject();p.duration=3;p.layers=[];p.name='Short source editing · synthetic fixture';const a=await importWav(bytes,'Synthetic test tap — not a real recording.wav',p);p.layers=[a.layer,{...createLayer('tone',1),name:'Protected tonal layer',duration:.1,start:2,gain:.02,locked:true}];p.assets={[a.asset.hash]:a.asset};
+const s=new ProjectStore(p),id=a.layer.id;writeFileSync(new URL('source-before.soniloom.json',root),serializeProject(p));writeFileSync(new URL('source-before.wav',root),new Uint8Array(encodeWav(renderProject(p).channels)));
+s.edit(id,{sourceIn:.23,sourceOut:.85,rate:.85,release:.18,roomEarly:.25,roomLate:.17,roomDecay:.8});const after=s.project;assert.equal(after.assets[a.asset.hash].data,a.asset.data);const r=renderProject(after);assert.equal(r.clipped,0);
+const portable=serializeProject(after),reopen=parseProject(portable);await verifyAssets(reopen);assert.deepEqual(renderProject(reopen).channels,r.channels);
+writeFileSync(new URL('source-edited.soniloom.json',root),portable);writeFileSync(new URL('source-edited.wav',root),new Uint8Array(encodeWav(r.channels)));writeFileSync(new URL('artifact-evidence.json',root),JSON.stringify({syntheticFixture:true,assetHash:a.asset.hash,sourceBytesUnchanged:true,roundtripPCMIdentical:true,peak:r.peak,clipped:r.clipped},null,2));console.log('PASS synthetic source import, selected playback+room, source bytes and persisted PCM');

@@ -1,0 +1,129 @@
+[
+  {
+    "prompt": "只修改选中录音层的 sourceIn 为0.23秒。sourceOut保持1.5秒，所有其他字段不变。",
+    "proposal": {
+      "message": "已按你的要求仅修改该录音层的裁切区间：将 sourceIn 设为 0.23 秒，sourceOut 继续保持 1.5 秒，其余字段不变。这样会让该采样从原始音频更靠后的片段开始播放，整体时长与播放参数保持一致。",
+      "operations": [
+        {
+          "kind": "edit",
+          "layerId": "52afc38a-8140-4b50-8f58-2744a6b58880",
+          "source": "",
+          "changes": [
+            {
+              "field": "sourceIn",
+              "value": 0.23
+            },
+            {
+              "field": "sourceOut",
+              "value": 1.5
+            }
+          ]
+        }
+      ]
+    },
+    "model": "gpt-5.4-mini-2026-03-17",
+    "responseId": "resp_0978e45f7f37ae3c016ac044ddfbe887d187ab0bc49111cda3",
+    "usage": {
+      "input_tokens": 1857,
+      "output_tokens": 193
+    },
+    "budget": {
+      "capUSD": 5,
+      "requests": 14,
+      "reservedUSD": 2.1,
+      "remainingUSD": 2.9,
+      "estimatedUSD": 0.0364035,
+      "unsettled": 0
+    },
+    "changes": [
+      {
+        "target": "Synthetic test tap — not a real recording",
+        "field": "sourceIn",
+        "before": 0,
+        "after": 0.23
+      }
+    ]
+  },
+  {
+    "prompt": "继续同一层，只把 sourceOut 改为0.85秒，保留sourceIn和其他全部参数。",
+    "proposal": {
+      "message": "已继续仅修改同一录音层：把 sourceOut 改为 0.85 秒，保留 sourceIn 和其他全部参数不变。这样会缩短该采样的取样区间，听感上更像是截取了更短的一段原始录音。",
+      "operations": [
+        {
+          "kind": "edit",
+          "layerId": "52afc38a-8140-4b50-8f58-2744a6b58880",
+          "source": "",
+          "changes": [
+            {
+              "field": "sourceOut",
+              "value": 0.85
+            }
+          ]
+        }
+      ]
+    },
+    "model": "gpt-5.4-mini-2026-03-17",
+    "responseId": "resp_07056c1445fa844f016ac044dfb17487d19751e2be3582fa96",
+    "usage": {
+      "input_tokens": 1969,
+      "output_tokens": 152
+    },
+    "budget": {
+      "capUSD": 5,
+      "requests": 15,
+      "reservedUSD": 2.25,
+      "remainingUSD": 2.75,
+      "estimatedUSD": 0.03856425,
+      "unsettled": 0
+    },
+    "changes": [
+      {
+        "target": "Synthetic test tap — not a real recording",
+        "field": "sourceOut",
+        "before": 1.5,
+        "after": 0.85
+      }
+    ]
+  },
+  {
+    "prompt": "继续同一层，只把淡出 release 改为0.18秒，保持之前的选区及所有其他参数。",
+    "proposal": {
+      "message": "已仅更新同一采样层的淡出：将 release 改为 0.18 秒，保留当前 sourceIn/sourceOut 选区以及其他全部参数不变。这样会让尾音收得更慢一些，听感上过渡更平滑。",
+      "operations": [
+        {
+          "kind": "edit",
+          "layerId": "52afc38a-8140-4b50-8f58-2744a6b58880",
+          "source": "",
+          "changes": [
+            {
+              "field": "release",
+              "value": 0.18
+            }
+          ]
+        }
+      ]
+    },
+    "model": "gpt-5.4-mini-2026-03-17",
+    "responseId": "resp_07580f9a6cbf5f73016ac044e12ecc87d18d28c8da0ad86c76",
+    "usage": {
+      "input_tokens": 2073,
+      "output_tokens": 151
+    },
+    "budget": {
+      "capUSD": 5,
+      "requests": 16,
+      "reservedUSD": 2.4,
+      "remainingUSD": 2.6,
+      "estimatedUSD": 0.0407985,
+      "unsettled": 0
+    },
+    "changes": [
+      {
+        "target": "Synthetic test tap — not a real recording",
+        "field": "release",
+        "before": 0.03,
+        "after": 0.18
+      }
+    ]
+  }
+]

@@ -1,0 +1,10 @@
+只把选中声层的早期反射强度改为0.22，其他所有参数完全不变。
+AI response
+
+已将选中声层的早期反射强度改为 0.22，其他参数保持不变。听感上会让这层的近距离空间感更弱一些、前向感略更直接。
+
+1 changes · Energy buildup
+
+Applied · Undo is available
+
+gpt-5.4-mini-2026-03-17 · 1737 in / 141 out

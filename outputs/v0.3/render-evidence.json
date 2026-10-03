@@ -1,0 +1,45 @@
+{
+  "dryUnchanged": true,
+  "comparison": "Dry source vs same dry source plus v0.3 room. Compared to the complete v0.2 mix, old fake spatial layers and legacy delays are removed; this is NOT a source-only ablation.",
+  "rmsMatching": {
+    "current": 1,
+    "reference": 0.9830784167378236
+  },
+  "files": [
+    {
+      "name": "garage-v02",
+      "peak": 0.41223853826522827,
+      "rms": 0.046060002080374786,
+      "clipped": 0,
+      "sha256": "c607c9f33edb5811b4ab0731c658be421241555be78e7300c8ef4845b575d1bb"
+    },
+    {
+      "name": "garage-dry",
+      "peak": 0.3499297797679901,
+      "rms": 0.0411482843964814,
+      "clipped": 0,
+      "sha256": "bbca286489bc8754c26d94dc3e7a695c6b9d5e5ffea25eca2a86dad3b6245660"
+    },
+    {
+      "name": "garage-room",
+      "peak": 0.4078637957572937,
+      "rms": 0.041856563724611405,
+      "clipped": 0,
+      "sha256": "c0ba14f9a09e67167e06f4105ef863c3be97251be032a9893b0aa228fddaead2"
+    },
+    {
+      "name": "metal-room",
+      "peak": 0.21030984818935394,
+      "rms": 0.01556691730223792,
+      "clipped": 0,
+      "sha256": "cfa7ec4321bd7b0cd0d9fab07ba08692e561b49c07e4f1270efae2e86a7a1c5f"
+    },
+    {
+      "name": "orbital-room",
+      "peak": 0.4739367663860321,
+      "rms": 0.06166213656506959,
+      "clipped": 0,
+      "sha256": "df02b004757a9ebad7932665013f6d4aab360b43800cdadf135d3085f1874d47"
+    }
+  ]
+}

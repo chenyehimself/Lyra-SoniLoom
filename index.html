@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>Lyra SoniLoom — Sound design</title><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="styles.css"></head>
+<body class="v02">
+<a class="skip" href="#timeline">Skip to sound timeline</a>
+<header class="topbar">
+ <a class="brand" href="#workspace" aria-label="Lyra SoniLoom home"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M5 24V12m6 17V7m7 18V11m7 20V5m6 17v-8"/></svg><span><small>LYRA</small>SoniLoom</span></a>
+ <div class="project-identity"><label class="header-kicker" for="project-name">CURRENT SOUND</label><input id="project-name" aria-label="Project name" maxlength="100"><span id="save-state">Local sound project</span></div>
+ <nav class="file-actions" aria-label="Project files"><button id="new-project">New sound</button><button id="open-project">Open</button><button id="save-project">Save project</button><button id="export" class="primary">Export WAV <span aria-hidden="true">↗</span></button></nav>
+</header>
+<div class="shell">
+ <aside class="conversation" aria-label="Sound conversation">
+  <div class="conversation-heading"><div><h1>Conversation</h1><span id="provider-state" role="status">Checking AI…</span></div><button id="clear-chat" aria-label="Clear conversation" title="Clear conversation; keep your sound">New chat</button></div>
+  <div id="chat-messages" class="chat-messages" role="log" aria-label="Conversation messages" aria-live="polite"></div>
+  <form id="chat-form" class="composer">
+   <label class="scope-label" for="ai-scope">Edit scope</label><select id="ai-scope" aria-label="AI edit scope"><option value="all">Whole sound</option><option id="selected-scope" value="selected">Selected layer</option></select>
+   <label class="visually-hidden" for="prompt">Describe or refine your sound</label><textarea id="prompt" rows="3" maxlength="3000" placeholder="Describe a sound, or tell me what to change…"></textarea>
+   <div class="composer-actions"><span>Enter to send · Shift+Enter for a new line</span><button id="send-prompt" class="primary" type="submit" disabled>Send <span aria-hidden="true">↑</span></button></div>
+   <p class="privacy-note">Prompts and layer settings go to OpenAI. Your audio stays here.</p><p id="ai-budget" class="budget-note">USD 5 test budget · Checking usage…</p>
+  </form>
+ </aside>
+ <main id="workspace">
+  <div class="workspace-heading"><div><p class="eyebrow">EDITABLE SOUND</p><h2>Sound workspace</h2></div><div class="history-buttons"><button id="undo" title="Undo (⌘/Ctrl Z)" aria-label="Undo">↶</button><button id="redo" title="Redo (⌘/Ctrl Shift Z)" aria-label="Redo">↷</button></div></div>
+  <section class="transport" aria-label="Playback controls"><button id="play" class="play-button" aria-label="Play">▶</button><button id="stop" aria-label="Stop">■</button><span id="clock" class="clock">00:00.00</span><span class="transport-divider"></span><label class="duration-label">Length <input id="duration" type="number" min="0.25" max="30" step="0.25" aria-label="Project duration"> s</label><div class="transport-right"><span id="render-state">Preparing sound…</span><span class="format">48 kHz / stereo</span></div></section>
+  <details class="source-drawer"><summary>Add a source <span>Procedural · Recording · Example</span></summary><div class="source-content"><div id="source-buttons"></div><button id="import-wav" class="import-button">Import recording <small>WAV · up to 30 seconds</small></button><button id="load-demo" class="demo-button">Orbital departure <small>Four-layer example</small></button></div></details>
+  <section id="timeline" class="timeline" tabindex="-1" aria-label="Layer timeline"><div class="timeline-top"><span>LAYERS <b id="layer-count">04</b></span><div class="ruler" id="ruler"></div></div><div id="layers"></div><div id="empty" hidden>Describe your first sound in the conversation, or add a source.</div></section>
+  <div class="timeline-footer"><span id="selection-label">Select a layer to explore its sound.</span><span>Drag a clip to move · Space to play</span></div>
+  <section class="spatial-listen" aria-label="Spatial audition"><label for="listen-component">Listen</label><select id="listen-component"><option value="full">Full mix</option><option value="dry">Dry · before room</option><option value="early">Early reflections only</option><option value="late">Reverb tail only</option></select><span id="listen-note">Audition only · exports use the selected export part</span><label for="export-part">Export</label><select id="export-part"><option value="full">Full mix</option><option value="dry">Dry</option><option value="early">Early reflections</option><option value="late">Reverb tail</option></select></section>
+  <section class="overview" aria-label="Mix waveform"><div class="overview-title"><h2>Mix overview</h2><span id="levels">—</span></div><div class="overview-canvas"><canvas id="mix-wave" aria-label="Rendered stereo waveform"></canvas><div id="playhead" class="playhead"></div></div><input id="seek" aria-label="Playback position" type="range" min="0" max="9" value="0" step="0.01"></section>
+  <section class="comparison" aria-label="Version comparison"><div><h2>A/B comparison</h2><p id="reference-info">Capture the current sound before editing.</p></div><div><label class="match-option"><input id="match-level" type="checkbox"> Match RMS levels <small>Playback only</small></label><button id="capture-reference">Capture reference</button><button id="compare" disabled>Listen to reference</button></div></section>
+  <div id="message" role="status" aria-live="polite">Preparing your workspace…</div>
+  <details id="inspector-panel" class="inspector"><summary>Layer inspector <span>Source & processing</span></summary><div id="inspector-content"></div></details>
+ </main>
+</div>
+<footer class="statusbar"><span id="revision">Revision 0</span><span id="audition-state">Full mix</span><span>SONILOOM 0.4 · OWNED DSP</span></footer>
+<input id="wav-input" type="file" accept=".wav,audio/wav" hidden><input id="project-input" type="file" accept=".json,.soniloom" hidden>
+<script type="module" src="src/app.mjs"></script>
+</body></html>

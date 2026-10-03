@@ -1,0 +1,15 @@
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Runtime state; keep the synthetic import fixture
+/work/*
+!/work/import-test-tap.wav
+
+# Local dependencies, logs and OS metadata
+node_modules/
+*.log
+.DS_Store

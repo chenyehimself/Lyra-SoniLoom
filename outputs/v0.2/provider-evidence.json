@@ -1,0 +1,424 @@
+[
+  {
+    "prompt": "创建一个6秒的科幻飞船启动音效，分成机械点火、能量上升、引擎释放三个独立声层。使用你可以组合的声源，整体留足音量余量。给每层清楚的名字。",
+    "scope": "all",
+    "model": "gpt-5.4-mini-2026-03-17",
+    "responseId": "resp_085994bb6ee69eb2016ac01decf75c87d19454af8b0c77e4a2",
+    "usage": {
+      "input_tokens": 956,
+      "output_tokens": 841
+    },
+    "budget": {
+      "capUSD": 5,
+      "requests": 1,
+      "reservedUSD": 0.15,
+      "remainingUSD": 4.85,
+      "estimatedUSD": 0.0045015,
+      "unsettled": 0
+    },
+    "elapsedMs": 5361,
+    "proposal": {
+      "message": "已按 6 秒长度规划为三层：前段机械点火，中段能量上升，后段引擎释放。整体增益保持偏保守，便于后续再调总音量。",
+      "operations": [
+        {
+          "kind": "project",
+          "layerId": "",
+          "source": "",
+          "changes": [
+            {
+              "field": "name",
+              "value": "科幻飞船启动"
+            },
+            {
+              "field": "duration",
+              "value": 6
+            }
+          ]
+        },
+        {
+          "kind": "add",
+          "layerId": "",
+          "source": "mechanical",
+          "changes": [
+            {
+              "field": "name",
+              "value": "机械点火"
+            },
+            {
+              "field": "start",
+              "value": 0
+            },
+            {
+              "field": "duration",
+              "value": 1.4
+            },
+            {
+              "field": "gain",
+              "value": 0.2
+            },
+            {
+              "field": "pan",
+              "value": -0.1
+            },
+            {
+              "field": "frequency",
+              "value": 85
+            },
+            {
+              "field": "endFrequency",
+              "value": 180
+            },
+            {
+              "field": "texture",
+              "value": 0.75
+            },
+            {
+              "field": "drive",
+              "value": 0.35
+            },
+            {
+              "field": "attack",
+              "value": 0.01
+            },
+            {
+              "field": "release",
+              "value": 0.25
+            }
+          ]
+        },
+        {
+          "kind": "add",
+          "layerId": "",
+          "source": "riser",
+          "changes": [
+            {
+              "field": "name",
+              "value": "能量上升"
+            },
+            {
+              "field": "start",
+              "value": 0.6
+            },
+            {
+              "field": "duration",
+              "value": 3.2
+            },
+            {
+              "field": "gain",
+              "value": 0.18
+            },
+            {
+              "field": "pan",
+              "value": 0.05
+            },
+            {
+              "field": "frequency",
+              "value": 180
+            },
+            {
+              "field": "endFrequency",
+              "value": 1600
+            },
+            {
+              "field": "texture",
+              "value": 0.55
+            },
+            {
+              "field": "drive",
+              "value": 0.15
+            },
+            {
+              "field": "attack",
+              "value": 0.12
+            },
+            {
+              "field": "release",
+              "value": 0.4
+            }
+          ]
+        },
+        {
+          "kind": "add",
+          "layerId": "",
+          "source": "impact",
+          "changes": [
+            {
+              "field": "name",
+              "value": "引擎释放"
+            },
+            {
+              "field": "start",
+              "value": 3.35
+            },
+            {
+              "field": "duration",
+              "value": 1.65
+            },
+            {
+              "field": "gain",
+              "value": 0.24
+            },
+            {
+              "field": "pan",
+              "value": 0
+            },
+            {
+              "field": "frequency",
+              "value": 65
+            },
+            {
+              "field": "endFrequency",
+              "value": 140
+            },
+            {
+              "field": "cutoff",
+              "value": 2800
+            },
+            {
+              "field": "texture",
+              "value": 0.5
+            },
+            {
+              "field": "drive",
+              "value": 0.2
+            },
+            {
+              "field": "attack",
+              "value": 0.005
+            },
+            {
+              "field": "release",
+              "value": 0.9
+            }
+          ]
+        }
+      ]
+    },
+    "changes": [
+      {
+        "target": "Sound",
+        "field": "name",
+        "before": "AI acceptance",
+        "after": "科幻飞船启动"
+      },
+      {
+        "target": "Sound",
+        "field": "duration",
+        "before": 9,
+        "after": 6
+      },
+      {
+        "target": "机械点火",
+        "field": "add",
+        "before": null,
+        "after": {
+          "type": "mechanical",
+          "name": "机械点火",
+          "start": 0,
+          "duration": 1.4,
+          "gain": 0.2,
+          "pan": -0.1,
+          "frequency": 85,
+          "endFrequency": 180,
+          "cutoff": 4000,
+          "attack": 0.01,
+          "release": 0.25,
+          "texture": 0.75,
+          "drive": 0.35,
+          "delay": 0.14,
+          "wet": 0,
+          "rate": 1,
+          "reverse": false,
+          "seed": 421
+        }
+      },
+      {
+        "target": "能量上升",
+        "field": "add",
+        "before": null,
+        "after": {
+          "type": "riser",
+          "name": "能量上升",
+          "start": 0.6,
+          "duration": 3.2,
+          "gain": 0.18,
+          "pan": 0.05,
+          "frequency": 180,
+          "endFrequency": 1600,
+          "cutoff": 4000,
+          "attack": 0.12,
+          "release": 0.4,
+          "texture": 0.55,
+          "drive": 0.15,
+          "delay": 0.14,
+          "wet": 0,
+          "rate": 1,
+          "reverse": false,
+          "seed": 494
+        }
+      },
+      {
+        "target": "引擎释放",
+        "field": "add",
+        "before": null,
+        "after": {
+          "type": "impact",
+          "name": "引擎释放",
+          "start": 3.35,
+          "duration": 1.65,
+          "gain": 0.24,
+          "pan": 0,
+          "frequency": 65,
+          "endFrequency": 140,
+          "cutoff": 2800,
+          "attack": 0.005,
+          "release": 0.9,
+          "texture": 0.5,
+          "drive": 0.2,
+          "delay": 0.14,
+          "wet": 0,
+          "rate": 1,
+          "reverse": false,
+          "seed": 567
+        }
+      }
+    ],
+    "projectId": "20a1afad-75cc-4b6d-9502-dea21a2df7f9",
+    "generation": 1
+  },
+  {
+    "prompt": "只把这个选中声层的低通截止频率改成1800 Hz，使它更暗，其余参数不变。",
+    "scope": "0acfee64-d8a6-4543-baec-c15772a89e99",
+    "model": "gpt-5.4-mini-2026-03-17",
+    "responseId": "resp_097526332b21c1db016ac01df2573887d1a32f08d6ca7e7e87",
+    "usage": {
+      "input_tokens": 1481,
+      "output_tokens": 135
+    },
+    "budget": {
+      "capUSD": 5,
+      "requests": 2,
+      "reservedUSD": 0.3,
+      "remainingUSD": 4.7,
+      "estimatedUSD": 0.00621975,
+      "unsettled": 0
+    },
+    "elapsedMs": 2804,
+    "proposal": {
+      "message": "已将选中的“能量上升”声层低通截止频率改为 1800 Hz，其余参数保持不变；这样会让这层听起来更暗、更收拢一些。",
+      "operations": [
+        {
+          "kind": "edit",
+          "layerId": "0acfee64-d8a6-4543-baec-c15772a89e99",
+          "source": "",
+          "changes": [
+            {
+              "field": "cutoff",
+              "value": 1800
+            }
+          ]
+        }
+      ]
+    },
+    "changes": [
+      {
+        "target": "能量上升",
+        "field": "cutoff",
+        "before": 4000,
+        "after": 1800
+      }
+    ],
+    "projectId": "20a1afad-75cc-4b6d-9502-dea21a2df7f9",
+    "generation": 3
+  },
+  {
+    "prompt": "继续修改同一个选中声层，只把结束频率改成600 Hz，保留刚才的1800 Hz截止频率。",
+    "scope": "0acfee64-d8a6-4543-baec-c15772a89e99",
+    "model": "gpt-5.4-mini-2026-03-17",
+    "responseId": "resp_086dd9c58554b70b016ac01df46e5887d1b7ffed70fb7f206a",
+    "usage": {
+      "input_tokens": 1570,
+      "output_tokens": 166
+    },
+    "budget": {
+      "capUSD": 5,
+      "requests": 3,
+      "reservedUSD": 0.45,
+      "remainingUSD": 4.55,
+      "estimatedUSD": 0.00814425,
+      "unsettled": 0
+    },
+    "elapsedMs": 2177,
+    "proposal": {
+      "message": "已把同一个选中声层的结束频率改为 600 Hz，并保留低通截止频率 1800 Hz 不变；这样能量上升会更明显地收束下行，听感更暗、更有压缩感。",
+      "operations": [
+        {
+          "kind": "edit",
+          "layerId": "0acfee64-d8a6-4543-baec-c15772a89e99",
+          "source": "",
+          "changes": [
+            {
+              "field": "endFrequency",
+              "value": 600
+            }
+          ]
+        }
+      ]
+    },
+    "changes": [
+      {
+        "target": "能量上升",
+        "field": "endFrequency",
+        "before": 1600,
+        "after": 600
+      }
+    ],
+    "projectId": "20a1afad-75cc-4b6d-9502-dea21a2df7f9",
+    "generation": 4
+  },
+  {
+    "prompt": "最后只把当前选中声层的音量改成0.12，其他所有层和参数都保持不变。",
+    "scope": "0acfee64-d8a6-4543-baec-c15772a89e99",
+    "model": "gpt-5.4-mini-2026-03-17",
+    "responseId": "resp_0d3603b6b5af91c5016ac01df69c1087d199403c2ac8f6ce77",
+    "usage": {
+      "input_tokens": 1666,
+      "output_tokens": 133
+    },
+    "budget": {
+      "capUSD": 5,
+      "requests": 4,
+      "reservedUSD": 0.6,
+      "remainingUSD": 4.4,
+      "estimatedUSD": 0.00999225,
+      "unsettled": 0
+    },
+    "elapsedMs": 2340,
+    "proposal": {
+      "message": "已将当前选中声层“能量上升”的音量改为 0.12，其余层和参数保持不变；这样这层会更退后一些，整体余量也会更充足。",
+      "operations": [
+        {
+          "kind": "edit",
+          "layerId": "0acfee64-d8a6-4543-baec-c15772a89e99",
+          "source": "",
+          "changes": [
+            {
+              "field": "gain",
+              "value": 0.12
+            }
+          ]
+        }
+      ]
+    },
+    "changes": [
+      {
+        "target": "能量上升",
+        "field": "gain",
+        "before": 0.18,
+        "after": 0.12
+      }
+    ],
+    "projectId": "20a1afad-75cc-4b6d-9502-dea21a2df7f9",
+    "generation": 5
+  }
+]

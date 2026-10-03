@@ -1,0 +1,125 @@
+[
+  {
+    "prompt": "只修改选中的枪口爆裂声层：早期反射强度改为0.28。保持干声、声源、时间、音量以及其余空间参数完全不变。",
+    "proposal": {
+      "message": "已按要求仅调整选中的“枪口爆裂”层：早期反射强度从 0.38 降为 0.28。其余干声、声源、时间、音量和空间参数保持不变。预期听感是近场感稍弱、空间感略收敛。",
+      "operations": [
+        {
+          "kind": "edit",
+          "layerId": "77b6f807-42a7-453e-ba43-06383c474014",
+          "source": "",
+          "changes": [
+            {
+              "field": "roomEarly",
+              "value": 0.28
+            }
+          ]
+        }
+      ]
+    },
+    "model": "gpt-5.4-mini-2026-03-17",
+    "responseId": "resp_09d00a4229751bb7016ac0279930b487d1b0a5377373fa29c1",
+    "usage": {
+      "input_tokens": 1554,
+      "output_tokens": 157
+    },
+    "budget": {
+      "capUSD": 5,
+      "requests": 10,
+      "reservedUSD": 1.5,
+      "remainingUSD": 3.5,
+      "estimatedUSD": 0.028167,
+      "unsettled": 0
+    },
+    "changes": [
+      {
+        "target": "枪口爆裂",
+        "field": "roomEarly",
+        "before": 0.38,
+        "after": 0.28
+      }
+    ]
+  },
+  {
+    "prompt": "继续修改同一声层，只把混响尾音衰减时间改成0.65秒，保留上次的反射强度和所有其他参数。",
+    "proposal": {
+      "message": "已继续仅修改同一声层：把混响尾音衰减时间改为 0.65 秒，保持上次的早期反射强度以及其余所有参数不变。预期听感是尾音更短、更快收束。",
+      "operations": [
+        {
+          "kind": "edit",
+          "layerId": "77b6f807-42a7-453e-ba43-06383c474014",
+          "source": "",
+          "changes": [
+            {
+              "field": "roomDecay",
+              "value": 0.65
+            }
+          ]
+        }
+      ]
+    },
+    "model": "gpt-5.4-mini-2026-03-17",
+    "responseId": "resp_0598382e73439307016ac0279b0a6487d1bdc1a767f9ad48fb",
+    "usage": {
+      "input_tokens": 1675,
+      "output_tokens": 154
+    },
+    "budget": {
+      "capUSD": 5,
+      "requests": 11,
+      "reservedUSD": 1.65,
+      "remainingUSD": 3.35,
+      "estimatedUSD": 0.03011625,
+      "unsettled": 0
+    },
+    "changes": [
+      {
+        "target": "枪口爆裂",
+        "field": "roomDecay",
+        "before": 1.05,
+        "after": 0.65
+      }
+    ]
+  },
+  {
+    "prompt": "继续修改同一声层，只把混响尾音强度改成0.18，保留之前两次修改以及其他所有参数。",
+    "proposal": {
+      "message": "已仅修改同一声层的混响尾音强度：roomLate 调为 0.18，保留此前的早期反射强度、尾音衰减时间以及其他所有参数不变。预期听感是尾音存在感更弱、更干净。",
+      "operations": [
+        {
+          "kind": "edit",
+          "layerId": "77b6f807-42a7-453e-ba43-06383c474014",
+          "source": "",
+          "changes": [
+            {
+              "field": "roomLate",
+              "value": 0.18
+            }
+          ]
+        }
+      ]
+    },
+    "model": "gpt-5.4-mini-2026-03-17",
+    "responseId": "resp_0715ad0ee3545c2b016ac0279cc7a487d1aad41eca4c1eb781",
+    "usage": {
+      "input_tokens": 1777,
+      "output_tokens": 168
+    },
+    "budget": {
+      "capUSD": 5,
+      "requests": 12,
+      "reservedUSD": 1.8,
+      "remainingUSD": 3.2,
+      "estimatedUSD": 0.032205,
+      "unsettled": 0
+    },
+    "changes": [
+      {
+        "target": "枪口爆裂",
+        "field": "roomLate",
+        "before": 0.24,
+        "after": 0.18
+      }
+    ]
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "artifacts": [
+    {
+      "name": "ai-before",
+      "bytes": 1152044,
+      "frames": 288000,
+      "sampleRate": 48000,
+      "channels": 2,
+      "peak": 0.2846963405609131,
+      "clipped": 0,
+      "exactReopenExport": true
+    },
+    {
+      "name": "ai-after",
+      "bytes": 1152044,
+      "frames": 288000,
+      "sampleRate": 48000,
+      "channels": 2,
+      "peak": 0.25159555673599243,
+      "clipped": 0,
+      "exactReopenExport": true
+    }
+  ],
+  "budget": {
+    "capUSD": 5,
+    "requests": 8,
+    "reservedUSD": 1.2,
+    "remainingUSD": 3.8,
+    "estimatedUSD": 0.020547,
+    "unsettled": 0
+  }
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "path": "outputs/v0.4/legacy-sample.soniloom.json",
+    "sha256": "6a9e7569421c78b2589dde14f6b7709aae0317add7c491a4de33e3bf4a5962d1"
+  },
+  {
+    "path": "outputs/v0.3/garage-room.soniloom.json",
+    "sha256": "c0ba14f9a09e67167e06f4105ef863c3be97251be032a9893b0aa228fddaead2"
+  },
+  {
+    "path": "outputs/v0.3/garage-ai-refined.soniloom.json",
+    "sha256": "f7adfd155c65ffd5cd18a72aedd0c3923b871523a7183795560ae6ff3284d360"
+  }
+]
