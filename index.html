@@ -5,7 +5,7 @@
 <header class="topbar">
  <a class="brand" href="#workspace" aria-label="Lyra SoniLoom home"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M5 24V12m6 17V7m7 18V11m7 20V5m6 17v-8"/></svg><span><small>LYRA</small>SoniLoom</span></a>
  <div class="project-identity"><label class="header-kicker" for="project-name">CURRENT SOUND</label><input id="project-name" aria-label="Project name" maxlength="100"><span id="save-state">Local sound project</span></div>
- <nav class="file-actions" aria-label="Project files"><button id="new-project">New sound</button><button id="open-project">Open</button><button id="save-project">Save project</button><button id="export" class="primary">Export WAV <span aria-hidden="true">↗</span></button></nav>
+ <nav class="file-actions" aria-label="Project files"><button id="new-project">New sound</button><button id="open-project">Open</button><button id="save-project">Save project</button><button id="settings-open" aria-haspopup="dialog">Settings</button><button id="export" class="primary">Export WAV <span aria-hidden="true">↗</span></button></nav>
 </header>
 <div class="shell">
  <aside class="conversation" aria-label="Sound conversation">
@@ -13,17 +13,17 @@
   <div id="chat-messages" class="chat-messages" role="log" aria-label="Conversation messages" aria-live="polite"></div>
   <form id="chat-form" class="composer">
    <label class="scope-label" for="ai-scope">Edit scope</label><select id="ai-scope" aria-label="AI edit scope"><option value="all">Whole sound</option><option id="selected-scope" value="selected">Selected layer</option></select>
-   <label class="visually-hidden" for="prompt">Describe or refine your sound</label><textarea id="prompt" rows="3" maxlength="3000" placeholder="Describe a sound, or tell me what to change…"></textarea>
-   <div class="composer-actions"><span>Enter to send · Shift+Enter for a new line</span><button id="send-prompt" class="primary" type="submit" disabled>Send <span aria-hidden="true">↑</span></button></div>
+   <div class="composer-box"><span class="composer-wave" aria-hidden="true">∿</span><label class="visually-hidden" for="prompt">Describe or refine your sound</label><textarea id="prompt" rows="2" maxlength="3000" placeholder="Describe a sound, or tell me what to change…"></textarea><button id="send-prompt" class="primary composer-send" type="submit" aria-label="Send to SoniLoom" disabled>↑</button></div>
+   <div class="composer-actions"><span id="send-hint">Enter to send · Shift+Enter for a new line</span></div>
    <p class="privacy-note">Prompts and layer settings go to OpenAI. Your audio stays here.</p><p id="ai-budget" class="budget-note">USD 5 test budget · Checking usage…</p>
   </form>
  </aside>
- <main id="workspace">
+ <main id="workspace" tabindex="-1">
   <div class="workspace-heading"><div><p class="eyebrow">EDITABLE SOUND</p><h2>Sound workspace</h2></div><div class="history-buttons"><button id="undo" title="Undo (⌘/Ctrl Z)" aria-label="Undo">↶</button><button id="redo" title="Redo (⌘/Ctrl Shift Z)" aria-label="Redo">↷</button></div></div>
   <section class="transport" aria-label="Playback controls"><button id="play" class="play-button" aria-label="Play">▶</button><button id="stop" aria-label="Stop">■</button><span id="clock" class="clock">00:00.00</span><span class="transport-divider"></span><label class="duration-label">Length <input id="duration" type="number" min="0.25" max="30" step="0.25" aria-label="Project duration"> s</label><div class="transport-right"><span id="render-state">Preparing sound…</span><span class="format">48 kHz / stereo</span></div></section>
   <details class="source-drawer"><summary>Add a source <span>Procedural · Recording · Example</span></summary><div class="source-content"><div id="source-buttons"></div><button id="import-wav" class="import-button">Import recording <small>WAV · up to 30 seconds</small></button><button id="load-demo" class="demo-button">Orbital departure <small>Four-layer example</small></button></div></details>
   <section id="timeline" class="timeline" tabindex="-1" aria-label="Layer timeline"><div class="timeline-top"><span>LAYERS <b id="layer-count">04</b></span><div class="ruler" id="ruler"></div></div><div id="layers"></div><div id="empty" hidden>Describe your first sound in the conversation, or add a source.</div></section>
-  <div class="timeline-footer"><span id="selection-label">Select a layer to explore its sound.</span><span>Drag a clip to move · Space to play</span></div>
+  <div class="timeline-footer"><span id="selection-label">Select a layer to explore its sound.</span><span>Space to play / pause · Enter to start position</span></div>
   <section class="spatial-listen" aria-label="Spatial audition"><label for="listen-component">Listen</label><select id="listen-component"><option value="full">Full mix</option><option value="dry">Dry · before room</option><option value="early">Early reflections only</option><option value="late">Reverb tail only</option></select><span id="listen-note">Audition only · exports use the selected export part</span><label for="export-part">Export</label><select id="export-part"><option value="full">Full mix</option><option value="dry">Dry</option><option value="early">Early reflections</option><option value="late">Reverb tail</option></select></section>
   <section class="overview" aria-label="Mix waveform"><div class="overview-title"><h2>Mix overview</h2><span id="levels">—</span></div><div class="overview-canvas"><canvas id="mix-wave" aria-label="Rendered stereo waveform"></canvas><div id="playhead" class="playhead"></div></div><input id="seek" aria-label="Playback position" type="range" min="0" max="9" value="0" step="0.01"></section>
   <section class="comparison" aria-label="Version comparison"><div><h2>A/B comparison</h2><p id="reference-info">Capture the current sound before editing.</p></div><div><label class="match-option"><input id="match-level" type="checkbox"> Match RMS levels <small>Playback only</small></label><button id="capture-reference">Capture reference</button><button id="compare" disabled>Listen to reference</button></div></section>
@@ -33,5 +33,15 @@
 </div>
 <footer class="statusbar"><span id="revision">Revision 0</span><span id="audition-state">Full mix</span><span>SONILOOM 0.4 · OWNED DSP</span></footer>
 <input id="wav-input" type="file" accept=".wav,audio/wav" hidden><input id="project-input" type="file" accept=".json,.soniloom" hidden>
+<dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-title">
+ <header class="settings-heading"><div><p class="eyebrow">SETTINGS</p><h2 id="settings-title">Model &amp; interaction</h2></div><button id="settings-close" type="button" aria-label="Close settings">×</button></header>
+ <form id="settings-form">
+  <section class="settings-group"><h3>MODEL</h3><dl><dt>Provider</dt><dd>OpenAI · Real AI</dd><dt>Model</dt><dd id="settings-model">Checking…</dd><dt>API key</dt><dd id="settings-key">Checking…</dd></dl><label for="reasoning-effort">Reasoning effort</label><select id="reasoning-effort"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select><p>Higher effort may take longer and use more tokens. Changes apply to future requests; existing sounds and pending proposals stay unchanged.</p></section>
+  <section class="settings-group"><h3>CONVERSATION</h3><label for="send-shortcut">Send shortcut</label><select id="send-shortcut"><option value="enter">Enter</option><option value="mod-enter">⌘ / Ctrl+Enter</option></select><p>Shift+Enter always inserts a new line. Preferences are saved in this browser, separately from your sound project.</p></section>
+  <section class="settings-group"><h3>KEYBOARD</h3><dl><dt>Return to start · stop playback</dt><dd>Enter</dd><dt>Play / pause</dt><dd>Space</dd><dt>Save project</dt><dd id="shortcut-save"></dd><dt>Undo</dt><dd id="shortcut-undo"></dd><dt>Redo</dt><dd id="shortcut-redo"></dd></dl><p>Workspace shortcuts leave input fields, buttons and dialogs in control of their own keys.</p></section>
+  <section class="settings-group"><h3>TEST BUDGET</h3><p id="settings-budget">Checking…</p><p>Audio stays local. Settings changes make no paid request. The cumulative test cap remains USD 5.</p></section>
+  <p id="settings-feedback" role="status"></p><button class="primary" type="submit">Save settings</button>
+ </form>
+</dialog>
 <script type="module" src="src/app.mjs"></script>
 </body></html>

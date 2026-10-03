@@ -1,3 +1,5 @@
+import {mountSettings} from './settings.mjs';
+import {shortcutAction} from './shortcuts.mjs';
 import {mountSampleEditor} from './sample-editor.mjs';
 import {createConversation} from './conversation.mjs';
 import {createProject,createLayer,ProjectStore,serializeProject,parseProject,verifyAssets,TYPES} from './project.mjs';
@@ -5,6 +7,9 @@ import {importWav} from './assets.mjs';
 import {ROOM_DEFAULTS} from './spatial.mjs';
 import {auditionChannels} from './engine.mjs';
 import {encodeWav} from './wav.mjs';
+const isMac=/Mac|iPhone|iPad/.test(navigator.platform);
+const settings=mountSettings({isMac});
+let playbackEpoch=0;
 let conversation=null,listenComponent='full',sampleEditorCleanup=null;
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let store=new ProjectStore(createProject()),selected=store.project.layers[1].id,result=null,reference=null,referenceResult=null,referenceMode=false;
@@ -77,8 +82,8 @@ function audition(){return result?auditionChannels(result,{component:listenCompo
 function drawAll(){const p=snapshot();for(const l of p.layers){const canvas=document.querySelector(`[data-wave="${CSS.escape(l.id)}"]`),pcm=result?.layers[l.id]?.[0];drawWave(canvas,pcm?.subarray(Math.round(l.start*48000),Math.round((l.start+l.duration)*48000)),l.color);}
  const channels=audition();drawWave($('mix-wave'),channels?.[0],referenceMode?'#dbac67':'#7396df');if(channels){const s=stats(channels);$('levels').textContent=`PEAK ${s.peak? (20*Math.log10(s.peak)).toFixed(1):'−∞'} dBFS · ${s.clipped?'CLIPPING — LOWER LEVELS':'48,000 Hz'}`;}updateClock();}
 function updateClock(){const t=playing?Math.min((referenceMode?reference.duration:snapshot().duration),context.currentTime-startedAt):offset;$('clock').textContent=`${String(Math.floor(t/60)).padStart(2,'0')}:${(t%60).toFixed(2).padStart(5,'0')}`;$('seek').value=t;$('playhead').style.left=`${Math.min(100,t/(referenceMode?reference.duration:snapshot().duration)*100)}%`;if(playing)requestAnimationFrame(updateClock);}
-function stopPlayback(reset=false){if(source){source.onended=null;try{source.stop();}catch{}source.disconnect();source=null;}if(playing&&context)offset=Math.max(0,context.currentTime-startedAt);playing=false;if(reset)offset=0;$('play').textContent='▶';$('play').setAttribute('aria-label','Play');updateClock();}
-async function play(){if(playing){stopPlayback();return;}const channels=audition();if(!channels)throw Error('Wait for the current sound to finish rendering');const s=stats(channels);if(s.clipped)throw Error('Mix exceeds 0 dBFS. Lower layer levels before playback or export.');context??=new AudioContext();await context.resume();const buffer=context.createBuffer(2,channels[0].length,48000);channels.forEach((c,i)=>buffer.copyToChannel(c,i));if(offset>=buffer.duration-.01)offset=0;source=context.createBufferSource();source.buffer=buffer;source.connect(context.destination);startedAt=context.currentTime-offset;source.start(0,offset);playing=true;$('play').textContent='Ⅱ';$('play').setAttribute('aria-label','Pause');source.onended=()=>{playing=false;source=null;offset=0;$('play').textContent='▶';$('play').setAttribute('aria-label','Play');updateClock();};updateClock();}
+function stopPlayback(reset=false){playbackEpoch++;if(source){source.onended=null;try{source.stop();}catch{}source.disconnect();source=null;}if(playing&&context)offset=Math.max(0,context.currentTime-startedAt);playing=false;if(reset)offset=0;$('play').textContent='▶';$('play').setAttribute('aria-label','Play');updateClock();}
+async function play(){if(playing){stopPlayback();return;}const channels=audition();if(!channels)throw Error('Wait for the current sound to finish rendering');const s=stats(channels);if(s.clipped)throw Error('Mix exceeds 0 dBFS. Lower layer levels before playback or export.');const epoch=++playbackEpoch;context??=new AudioContext();await context.resume();if(epoch!==playbackEpoch)return;const buffer=context.createBuffer(2,channels[0].length,48000);channels.forEach((c,i)=>buffer.copyToChannel(c,i));if(offset>=buffer.duration-.01)offset=0;source=context.createBufferSource();source.buffer=buffer;source.connect(context.destination);startedAt=context.currentTime-offset;source.start(0,offset);playing=true;$('play').textContent='Ⅱ';$('play').setAttribute('aria-label','Pause');source.onended=()=>{playing=false;source=null;offset=0;$('play').textContent='▶';$('play').setAttribute('aria-label','Play');updateClock();};updateClock();}
 let lastDownloadUrl=null;
 function clearDownload(){if(lastDownloadUrl)URL.revokeObjectURL(lastDownloadUrl);lastDownloadUrl=null;$('download-again')?.remove();}
 function download(bytes,name,type){if(lastDownloadUrl)URL.revokeObjectURL(lastDownloadUrl);lastDownloadUrl=URL.createObjectURL(new Blob([bytes],{type}));let a=$('download-again');if(!a){a=document.createElement('a');a.id='download-again';$('message').after(a);}a.href=lastDownloadUrl;a.download=name;a.textContent=`Download ${name}`;a.click();}
@@ -102,8 +107,8 @@ $('compare').onclick=safe(async()=>{listenComponent='full';$('listen-component')
 $('listen-component').onchange=()=>{stopPlayback(true);listenComponent=$('listen-component').value;referenceMode=false;$('compare').classList.remove('active');$('compare').textContent='Listen to reference';updateUI(false);drawAll();};
 $('match-level').onchange=()=>{stopPlayback(true);drawAll();notice('RMS matching affects playback only and attenuates the louder audition or reference. Exports stay unchanged.');};
 window.addEventListener('resize',()=>requestAnimationFrame(drawAll));
-document.addEventListener('keydown',safe(async e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.code==='Space'){e.preventDefault();await play();}if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?store.redo():store.undo();changed('History updated.');}}));
+document.addEventListener('keydown',safe(async e=>{const action=shortcutAction(e,isMac,!!document.querySelector('dialog[open]'));if(!action)return;e.preventDefault();if(action==='return'){stopPlayback(true);return;}if(action==='play'){await play();return;}if(action==='save'){$('save-project').click();return;}if(action==='undo'||action==='redo'){store[action]();changed('History updated.');}}));
 window.addEventListener('beforeunload',e=>{if(dirty()){e.preventDefault();e.returnValue='';}});
 await initRecovery();
-conversation=createConversation({getStore:()=>store,getSelected:()=>selected,onApply:()=>changed('AI changes applied as one revision. Undo is available.')});
+conversation=createConversation({settings,isMac,getStore:()=>store,getSelected:()=>selected,onApply:()=>changed('AI changes applied as one revision. Undo is available.')});
 conversation.sync();

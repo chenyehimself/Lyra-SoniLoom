@@ -21,6 +21,19 @@ npm run examples
 
 Tests use Node's built-in runner. Example generation writes the supplied WAVs, project files and signal measurements under `outputs/`, plus the synthetic WAV import fixture under `work/`.
 
+## Developing together
+
+Each contributor works in their own clone, in a parent directory of their choice. Run the commands above from that clone's root. Paths in this README are relative to the repository root; no particular home directory, sibling Lyra checkout or SoundRack installation is required.
+
+- Use a separate branch for each focused change and agree on scope with collaborators before overlapping work. Open a pull request for review rather than mixing independent changes directly into `main`.
+- Keep machine-specific paths, editor preferences and API credentials local. Use your own authorized key in `.env.local` or the server environment; `.env.example` contains placeholders only. The file loader reads `OPENAI_API_KEY`, not arbitrary environment variables.
+- The default port is 8795. If needed, select another port in the process environment: `PORT=8796 npm start` on macOS/Linux, or `$env:PORT=8796; npm start` in PowerShell. Use the corresponding URL. Browser settings and recovery belong to an origin, so another port has a separate recovery slot.
+- Run `npm test` before proposing a change. For UI or transport changes, also exercise the affected behavior in a browser. Report automated checks, live provider checks and human listening separately; passing tests do not establish sound quality.
+- Offline tests require no API key. Live AI checks are optional paid actions: agree on who runs them and the spending allowance first. Each clone has its own ignored budget ledger; the USD 5 guard is not a shared team or provider-account budget. Never reset a ledger to bypass its cap.
+- Share source changes through Git and sound projects through **Save project** / **Open** when needed. Local browser recovery, conversation history, credentials and budget state are not synchronized by Git. Export only recordings and project assets you intend to share.
+
+The file map below is a starting point for choosing an area of work, not a fixed assignment of responsibilities. Historical plans and acceptance reports describe earlier scope and evidence; coordinate new work explicitly rather than treating every roadmap item as an active task.
+
 ## Real AI conversation
 
 Use **New sound** for an empty project, describe your sound in the left conversation and press Send. The model proposes layers and parameters. Expand the change list, then choose **Apply changes** or **Discard**. One Apply is one undoable revision. Continue speaking about the same sound; every request includes its current state, including manual edits and undo.
@@ -29,11 +42,15 @@ Choose **Selected layer** to restrict edits to that layer. **Whole sound** permi
 
 The header holds the current sound name and project actions. **Add a source** expands procedural/import/example controls. Selecting a timeline layer opens its inspector below the mix. Conversation and inspector control the same project.
 
-AI uses `gpt-5.4-mini-2026-03-17` with the Responses API and structured JSON output. Prompts, the last five conversation turns, layer parameters, bounded local audio measurements and asset names/IDs leave the device; original audio bytes do not. The provider cannot listen to or identify uploaded recordings in this version. `store:false` is requested; this is not a promise of zero provider retention. No external audio generation, provider tools, model training or arbitrary code execution is used.
+AI uses `gpt-6.1-sol` with the Responses API and structured JSON output. Prompts, the last five conversation turns, layer parameters, bounded local audio measurements and asset names/IDs leave the device; original audio bytes do not. The provider cannot listen to or identify uploaded recordings in this version. `store:false` is requested; this is not a promise of zero provider retention. No external audio generation, provider tools, model training or arbitrary code execution is used.
 
-The local live-test budget is USD 5 **across restarts**, enforced by `work/ai-budget.jsonl`. Each attempted call permanently reserves USD 0.15; at most 33 attempts are admitted. Successful token usage is displayed separately as an estimate. Failed/unknown calls retain their reservation. There are no automatic retries or model fallbacks. Do not delete/reset the ledger to continue testing; increasing the budget requires a new authorization. This guard covers calls recorded in this checkout's ledger, not other clients or checkouts using the same OpenAI project. The ledger is intentionally excluded from Git; cloning creates no shared budget state. Do not run multiple copies with the same key under the assumption that their allowances are cumulative.
+The local live-test budget is USD 5 **across restarts**, enforced by `work/ai-budget.jsonl`. Each new Sol call permanently reserves USD 0.20; a fresh ledger admits at most 25 attempts. Existing mini calls retain their original USD 0.15 reservations and remain part of the same cumulative cap. Sol usage is estimated at USD 2 per million input tokens and USD 10 per million output tokens. Successful token usage is displayed separately as an estimate. Failed/unknown calls retain their reservation. There are no automatic retries or model fallbacks. Do not delete/reset the ledger to continue testing; increasing the budget requires a new authorization. This guard covers calls recorded in this checkout's ledger, not other clients or checkouts using the same OpenAI project. The ledger is intentionally excluded from Git; cloning creates no shared budget state. Do not run multiple copies with the same key under the assumption that their allowances are cumulative.
 
 Provider requests are serialized, bounded to 64 KiB including schema/instructions, limited to 4,096 output tokens and timed out after 60 seconds. Charges are estimated using uncached input rates, conservatively ignoring any caching discount. The UI's ready indicator confirms server configuration; each completed response supplies actual provider evidence.
+
+**Settings** provides Low / Medium / High reasoning effort (default Medium) and Enter or Cmd/Ctrl+Enter to send (default Enter). Shift+Enter inserts a new line. These preferences persist in this browser and apply to future requests; saving settings sends no AI request.
+
+In the workspace, **Enter returns to the beginning and stops playback**; **Space** plays or pauses. **Cmd/Ctrl+S** saves the project, **Cmd/Ctrl+Z** undoes, and **Cmd/Ctrl+Shift+Z** redoes. Input fields and dialogs keep their own keyboard behavior; focused buttons retain native Enter/Space activation.
 
 Chat and pending proposals are session-local and reset on New/Open/reload; project audio state is portable. Use one workbench tab while editing.
 
@@ -94,6 +111,7 @@ The project has local IndexedDB recovery. Recovery is browser/origin-specific an
 | `src/engine.mjs`, `src/render-worker.mjs` | Independent layer DSP, stereo mixing, nonblocking rendering |
 | `src/app.mjs`, `index.html`, `styles.css`, `favicon.svg` | Workbench, transport, timeline, inspector, recovery and file controls |
 | `server.mjs`, `server/ai.mjs`, `server/budget.mjs`, `package.json` | Local same-origin API, server-only credentials, OpenAI request boundary and durable budget |
+| `src/settings.mjs`, `src/shortcuts.mjs` | Browser-local preferences, settings dialog and keyboard ownership |
 | `src/ai-contract.mjs`, `src/conversation.mjs` | Validated atomic edit proposals, exact review deltas and conversation UI |
 | `tests/` | State, DSP, asset integrity, export and regression checks |
 | `scripts/render-examples.mjs`, `outputs/` | Reproducible examples and acceptance evidence |

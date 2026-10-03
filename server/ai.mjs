@@ -21,16 +21,17 @@ export function normalizeRequest(raw){
  const scope=raw.scope;if(scope!=='all'&&!project.layers.some(l=>l.id===scope))throw Error('Invalid edit scope');
  if(!Array.isArray(raw.history)||raw.history.length>12)throw Error('Invalid conversation history');
  const history=raw.history.map(m=>{if(!m||!['user','assistant'].includes(m.role)||typeof m.content!=='string'||m.content.length>6000)throw Error('Invalid conversation message');return {role:m.role,content:m.content};});
- return {prompt:raw.prompt.trim(),project,scope,history};
+ const reasoningEffort=raw.reasoningEffort??'medium';if(!['low','medium','high'].includes(reasoningEffort))throw Error('Invalid reasoning effort');
+ return {prompt:raw.prompt.trim(),project,scope,history,reasoningEffort};
 }
 export function createAI({key,budget,fetchImpl=fetch,timeoutMs=60000}){
  let busy=false;
  return {
-  status(){return {configured:!!key,model:MODEL,busy,budget:budget.status()};},
+  status(){return {configured:!!key,model:MODEL,reasoningEfforts:['low','medium','high'],defaultReasoningEffort:'medium',busy,budget:budget.status()};},
   async generate(raw){
    if(!key)throw Error('OPENAI_API_KEY is not configured on the local server');
    const request=normalizeRequest(raw);if(busy)throw Error('Another AI request is running. Try again after it finishes.');
-   const payload={model:MODEL,store:false,reasoning:{effort:'low'},max_output_tokens:4096,instructions,
+   const payload={model:MODEL,store:false,reasoning:{effort:request.reasoningEffort},max_output_tokens:4096,instructions,
     input:[...request.history,{role:'user',content:JSON.stringify({request:request.prompt,scope:request.scope,currentProject:request.project})}],
     text:{format:{type:'json_schema',name:'sound_proposal',strict:true,schema:PROPOSAL_SCHEMA}}};
    const body=JSON.stringify(payload);if(Buffer.byteLength(body)>64*1024)throw Error('Conversation context too large. Start a fresh conversation.');
@@ -47,7 +48,7 @@ export function createAI({key,budget,fetchImpl=fetch,timeoutMs=60000}){
     const content=(data.output||[]).flatMap(o=>o.type==='message'&&Array.isArray(o.content)?o.content:[]);
     if(content.some(c=>c.type==='refusal'))throw Error('The provider declined this request. Sound unchanged.');
     let proposal;try{proposal=JSON.parse(content.filter(c=>c.type==='output_text').map(c=>c.text).join(''));validateProposal(proposal);}catch{throw Error('AI returned an invalid edit proposal. Sound unchanged.');}
-    return {proposal,model:MODEL,responseId,usage:data.usage?{input_tokens:data.usage.input_tokens,output_tokens:data.usage.output_tokens}:null,budget:budget.status()};
+    return {proposal,model:MODEL,reasoningEffort:request.reasoningEffort,responseId,usage:data.usage?{input_tokens:data.usage.input_tokens,output_tokens:data.usage.output_tokens}:null,budget:budget.status()};
    }finally{busy=false;}
   }
  };

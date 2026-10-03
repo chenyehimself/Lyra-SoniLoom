@@ -64,3 +64,35 @@
 .v02 #inspector-content .sample-editor{grid-column:1/-1;padding:18px;border:1px solid #303d51;border-radius:8px;background:#0e131c;min-width:0}
 .sample-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}.sample-heading h3{margin:0}.source-measurements,.source-ruler{font:10px var(--mono);color:#9caac0}.source-waveform{height:100px;position:relative;background:#111a27;border:1px solid #2c3e59;touch-action:none}.source-waveform canvas{display:block;width:100%;height:100px;cursor:crosshair}.source-selection{position:absolute;top:0;bottom:0;background:#5885ff25;border-left:2px solid #8dafff;border-right:2px solid #8dafff;pointer-events:none}.source-ruler{display:flex;justify-content:space-between;margin:6px 0 12px}.source-window-inputs{display:flex;gap:16px;flex-wrap:wrap}.source-window-inputs label{display:flex;align-items:center;gap:8px;font-size:12px}.source-window-inputs input{width:130px}.source-playback-info{margin-top:12px}.sample-actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.source-help{max-width:800px}
 @media(max-width:600px){.v02 #inspector-content .sample-editor{padding:12px}.source-window-inputs label{justify-content:space-between;width:100%}.sample-actions button{font-size:11px}}
+
+/* SoundRack conversation hierarchy, adapted to the sound-effects workbench. */
+.v02 .shell{grid-template-columns:380px minmax(0,1fr)}
+.v02 .brand{width:326px}
+.conversation-heading{padding:24px 22px 16px;align-items:flex-start}
+.conversation-heading h1{font-size:24px;line-height:1.3;letter-spacing:-.5px}
+#provider-state{font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.chat-messages{padding:24px 22px;scrollbar-gutter:stable}
+.chat-turn{padding:0 0 28px;margin:0 0 24px;border-bottom:0}
+.user-turn{display:flex;flex-direction:column;align-items:flex-end;max-width:90%;margin:0 0 28px auto}
+.speaker-label{display:flex;align-items:center;gap:12px;font-size:16px;line-height:1.5;margin-bottom:10px}
+.speaker-label time{font-size:12px;font-weight:400;color:#adb6c7}
+.user-turn .user-message{margin:0;padding:12px 16px;border-radius:16px 4px 16px 16px;background:#14213b;font-size:16px;line-height:1.6;color:var(--text);max-width:100%;white-space:pre-wrap}
+.chat-turn .assistant-label{font-size:17px;font-weight:600;line-height:1.5;letter-spacing:0;text-transform:none;color:var(--text);margin:0 0 10px}
+.chat-turn .assistant-message{font-size:16px;line-height:1.65;margin:8px 0 16px;white-space:pre-wrap}
+.proposal-details{font-size:13px;line-height:1.6;margin:14px 0}
+.proposal-details summary{min-height:40px;padding:9px 0}
+.turn-state{font-size:12px;line-height:1.6}.turn-meta{display:block;font-size:10px;line-height:1.5;overflow-wrap:anywhere;margin-top:12px}
+.composer{padding:16px 18px 12px;flex-shrink:0}
+.composer-box{display:flex;gap:9px;align-items:flex-end;padding:10px;border:1px solid #36435a;border-radius:14px;background:#151b27;margin-top:12px}
+.composer-box:focus-within{border-color:#799fdc;box-shadow:0 0 0 2px #799fdc20}
+.composer-wave{font-size:25px;color:#8baaf0;align-self:center}
+.composer .composer-box #prompt{margin:0;padding:5px 0;min-height:60px;max-height:140px;resize:vertical;border:0;outline:0;box-shadow:none;background:transparent;font-size:14px;line-height:1.6;flex:1;width:0}
+.composer .composer-send{width:34px;height:34px;flex:none;padding:0;border-radius:9px;font-size:22px}
+.composer-actions{margin-top:9px}.composer-actions span{font-size:10px;line-height:1.5}
+.privacy-note,.budget-note{font-size:10px;line-height:1.5;margin-top:7px}
+.settings-dialog{color:var(--text);background:#11161f;border:1px solid #344158;border-radius:14px;width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 40px);padding:24px;margin:auto;overflow:auto;box-shadow:0 24px 90px #0009}
+.settings-dialog::backdrop{background:#0009}
+.settings-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}.settings-heading h2{font-size:22px;margin:6px 0}.settings-heading button{font-size:24px;padding:0;width:36px;height:36px}
+.settings-group{border-top:1px solid var(--line);padding:18px 0}.settings-group h3{font:11px var(--mono);letter-spacing:1px;color:#a9b8cf;margin:0 0 15px}.settings-group dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin:0 0 16px;font-size:13px;line-height:1.5}.settings-group dd{margin:0;overflow-wrap:anywhere}.settings-group dt{color:#9ba9be}.settings-group label{display:block;font-size:13px;margin:0 0 8px}.settings-group select{width:100%;padding:9px}.settings-group p{font-size:12px;line-height:1.7;color:#9ba9be;margin:10px 0 0}#settings-feedback{font-size:12px;line-height:1.6;margin-bottom:14px;color:#aac1ed}
+@media(max-width:1100px){.v02 .shell{grid-template-columns:330px minmax(0,1fr)}.v02 .brand{width:180px}.v02 .topbar{gap:14px;padding:0 16px}.v02 .file-actions button{padding:7px 8px}.chat-messages{padding:18px}.conversation-heading{padding:18px}}
+@media(max-width:760px){.v02{height:auto;overflow:auto}.v02 .shell{display:flex;height:auto;flex-direction:column}.v02 .conversation{height:580px;max-height:none;border-right:0;border-bottom:1px solid var(--line)}.v02 .topbar{height:auto;min-height:120px;flex-wrap:wrap;padding:12px;gap:10px}.v02 .brand{width:auto}.v02 .project-identity{min-width:140px}.v02 .file-actions{width:100%;justify-content:flex-end;flex-wrap:wrap}.v02 .shell main{overflow:visible}.v02 .composer{padding:12px 16px}.settings-dialog{padding:18px}.settings-group dl{font-size:12px}.chat-welcome h3{font-size:22px}}
