@@ -29,7 +29,7 @@ export function validateProposal(proposal){
  }
  return proposal;
 }
-function buildCandidate(project,proposal,scope){
+function buildCandidate(project,proposal,scope,librarySamples=new Map()){
  const next=structuredClone(project),removedAssets=new Set();
  if(scope!=='all'&&!next.layers.some(l=>l.id===scope))throw Error('Selected layer no longer exists');
  for(const op of proposal.operations){
@@ -41,7 +41,10 @@ function buildCandidate(project,proposal,scope){
   }else if(op.kind==='add'){
    if(op.layerId!==''||!TYPES.includes(op.source))throw Error('New layers receive their identity locally');
    if(op.source!=='sample'&&Object.hasOwn(patch,'assetId'))throw Error('Only samples can reference an asset');
-   const l=createLayer(op.source,next.layers.length);l.duration=Math.min(2,next.duration);Object.assign(l,patch);next.layers.push(l);
+   const imported=op.source==='sample'?librarySamples.get(patch.assetId):null;
+   const l=imported?{...structuredClone(imported.layer),id:crypto.randomUUID()}:createLayer(op.source,next.layers.length);l.duration=Math.min(l.duration,next.duration);
+   if(imported){next.schemaVersion=4;next.assets[imported.asset.hash]=structuredClone(imported.asset);patch.assetId=imported.asset.hash;l.sourceRef=structuredClone(imported.sourceRef);}
+   Object.assign(l,patch);next.layers.push(l);
   }else{
    const l=next.layers.find(l=>l.id===op.layerId);if(!l)throw Error('Unknown AI target layer');if(l.locked)throw Error(`Layer is locked: ${l.name}`);
    if(op.kind==='remove'){if(op.changes.length)throw Error('Remove must not include changes');if(l.type==='sample')removedAssets.add(l.assetId);next.layers=next.layers.filter(x=>x.id!==l.id);}
@@ -63,8 +66,8 @@ export function describeChanges(before,after){
  for(const l of after.layers)if(!before.layers.some(x=>x.id===l.id))changes.push({target:l.name,field:'add',before:null,after:{...Object.fromEntries(['type',...EDIT_FIELDS].map(k=>[k,l[k]])),...(l.type==='sample'?{assetId:l.assetId,assetName:after.assets[l.assetId].name}:{})}});
  return changes;
 }
-export function prepareProposal(store,proposal,{scope='all'}={}){
- validateProposal(proposal);const before=store.project,next=buildCandidate(before,proposal,scope);
+export function prepareProposal(store,proposal,{scope='all',librarySamples=new Map()}={}){
+ validateProposal(proposal);const before=store.project,next=buildCandidate(before,proposal,scope,librarySamples);
  const view={message:proposal.message,changes:describeChanges(before,next),generation:store.generation};
  preparedPlans.set(view,{store,generation:store.generation,next});return view;
 }
@@ -74,3 +77,5 @@ export function applyProposal(store,prepared){
  const applied=store.apply(p=>Object.assign(p,structuredClone(data.next)),'Applied AI changes',data.generation);
  preparedPlans.delete(prepared);return applied;
 }
+
+export function preparedProject(store,prepared){const data=preparedPlans.get(prepared);if(!data||data.store!==store||data.generation!==store.generation)throw Error('Stale proposal: sound changed');return structuredClone(data.next);}

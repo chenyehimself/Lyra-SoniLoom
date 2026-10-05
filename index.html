@@ -5,7 +5,7 @@
 <header class="topbar">
  <a class="brand" href="#workspace" aria-label="Lyra SoniLoom home"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M5 24V12m6 17V7m7 18V11m7 20V5m6 17v-8"/></svg><span><small>LYRA</small>SoniLoom</span></a>
  <div class="project-identity"><label class="header-kicker" for="project-name">CURRENT SOUND</label><input id="project-name" aria-label="Project name" maxlength="100"><span id="save-state">Local sound project</span></div>
- <nav class="file-actions" aria-label="Project files"><button id="new-project">New sound</button><button id="open-project">Open</button><button id="save-project">Save project</button><button id="settings-open" aria-haspopup="dialog">Settings</button><button id="export" class="primary">Export WAV <span aria-hidden="true">↗</span></button></nav>
+ <nav class="file-actions" aria-label="Project files"><button id="new-project">New sound</button><button id="open-project">Open</button><button id="save-project">Save project</button><button id="library-open" aria-haspopup="dialog">Library</button><button id="settings-open" aria-haspopup="dialog">Settings</button><button id="export" class="primary">Export WAV <span aria-hidden="true">↗</span></button></nav>
 </header>
 <div class="shell">
  <aside class="conversation" aria-label="Sound conversation">
@@ -13,7 +13,9 @@
   <div id="chat-messages" class="chat-messages" role="log" aria-label="Conversation messages" aria-live="polite"></div>
   <form id="chat-form" class="composer">
    <label class="scope-label" for="ai-scope">Edit scope</label><select id="ai-scope" aria-label="AI edit scope"><option value="all">Whole sound</option><option id="selected-scope" value="selected">Selected layer</option></select>
+   <label class="library-consent"><input id="ai-library" type="checkbox"> Use library candidates · allow candidate tags and measurements to OpenAI (up to 3 searches)</label>
    <div class="composer-box"><span class="composer-wave" aria-hidden="true">∿</span><label class="visually-hidden" for="prompt">Describe or refine your sound</label><textarea id="prompt" rows="2" maxlength="3000" placeholder="Describe a sound, or tell me what to change…"></textarea><button id="send-prompt" class="primary composer-send" type="submit" aria-label="Send to SoniLoom" disabled>↑</button></div>
+   <button id="cancel-prompt" type="button" hidden>Cancel request</button>
    <div class="composer-actions"><span id="send-hint">Enter to send · Shift+Enter for a new line</span></div>
    <p class="privacy-note">Prompts and layer settings go to OpenAI. Your audio stays here.</p><p id="ai-budget" class="budget-note">USD 5 test budget · Checking usage…</p>
   </form>
@@ -31,10 +33,13 @@
   <details id="inspector-panel" class="inspector"><summary>Layer inspector <span>Source & processing</span></summary><div id="inspector-content"></div></details>
  </main>
 </div>
-<footer class="statusbar"><span id="revision">Revision 0</span><span id="audition-state">Full mix</span><span>SONILOOM 0.4 · OWNED DSP</span></footer>
+<footer class="statusbar"><span id="revision">Revision 0</span><span id="audition-state">Full mix</span><span>SONILOOM 0.5 · OWNED DSP</span></footer>
 <input id="wav-input" type="file" accept=".wav,audio/wav" hidden><input id="project-input" type="file" accept=".json,.soniloom" hidden>
 <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-title">
  <header class="settings-heading"><div><p class="eyebrow">SETTINGS</p><h2 id="settings-title">Model &amp; interaction</h2></div><button id="settings-close" type="button" aria-label="Close settings">×</button></header>
+ <form id="library-folder-form" class="settings-group">
+  <h3>LOCAL SOUND LIBRARY</h3><label for="library-folder">Library folder (absolute path)</label><input id="library-folder" type="text" required placeholder="/Users/your-name/Lyra-SoniLoom-Library"><p>Content stays on this computer. Changing this path switches libraries; it does not move or delete files.</p><button type="submit">Use folder</button><p id="library-folder-feedback" role="status"></p>
+ </form>
  <form id="settings-form">
   <section class="settings-group"><h3>MODEL</h3><dl><dt>Provider</dt><dd>OpenAI · Real AI</dd><dt>Model</dt><dd id="settings-model">Checking…</dd><dt>API key</dt><dd id="settings-key">Checking…</dd></dl><label for="reasoning-effort">Reasoning effort</label><select id="reasoning-effort"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select><p>Higher effort may take longer and use more tokens. Changes apply to future requests; existing sounds and pending proposals stay unchanged.</p></section>
   <section class="settings-group"><h3>CONVERSATION</h3><label for="send-shortcut">Send shortcut</label><select id="send-shortcut"><option value="enter">Enter</option><option value="mod-enter">⌘ / Ctrl+Enter</option></select><p>Shift+Enter always inserts a new line. Preferences are saved in this browser, separately from your sound project.</p></section>
@@ -42,6 +47,15 @@
   <section class="settings-group"><h3>TEST BUDGET</h3><p id="settings-budget">Checking…</p><p>Audio stays local. Settings changes make no paid request. The cumulative test cap remains USD 5.</p></section>
   <p id="settings-feedback" role="status"></p><button class="primary" type="submit">Save settings</button>
  </form>
+</dialog>
+<dialog id="library-dialog" class="library-dialog" aria-labelledby="library-heading">
+ <header class="settings-heading"><div><p class="eyebrow">LOCAL ASSETS</p><h2 id="library-heading">Sound Library</h2></div><button id="library-close" aria-label="Close library">×</button></header>
+ <details class="library-install"><summary>Install / update bundles</summary><p>Download manifest.json and the ZIP volumes you need from your team's Google Drive. Import the manifest first, choose its version, then choose ZIP files. Keep ZIP volumes intact.</p><label>Import manifest <input id="library-manifest" type="file" accept=".json"></label><label>Install ZIP volumes <input id="library-zips" type="file" accept=".zip" multiple></label><p id="library-job" role="status">No installation active</p><button id="library-cancel" disabled>Cancel installation</button><details><summary>Volume status</summary><pre id="library-volumes"></pre></details></details>
+ <div class="library-filters"><label>Search<input id="library-search" type="search" placeholder="Name, category, tag or asset ID"></label><label>Bundle version<select id="library-bundle"><option value="">All bundle versions</option></select></label><label>Category<select id="library-category"><option value="">All categories</option></select></label><label>Collection<select id="library-source"><option value="">All collections</option></select></label><label class="checkbox-label"><input id="library-installed" type="checkbox"> Installed only</label></div>
+ <details class="library-intelligence"><summary>Local analysis &amp; candidate search</summary><p>Bundle labels describe identity. Local code measures audio; no semantic model or cloud call is used here.</p><div class="library-actions"><button id="analysis-selected">Analyze selected</button><button id="analysis-visible">Analyze this page · first 20</button><button id="analysis-refresh">Refresh status</button><button id="analysis-rebuild">Rebuild index</button></div><p id="analysis-job" role="status">No analysis batch loaded</p><div class="library-actions"><button id="analysis-cancel" disabled>Cancel analysis</button><button id="analysis-resume" disabled>Resume analysis</button></div><p id="analysis-record"></p><label for="library-candidate-query">Find candidates across installed library · bundle keywords</label><div class="candidate-search-row"><input id="library-candidate-query" type="search" maxlength="200" placeholder="pistol · metal door · rain"><button id="library-candidate-search">Find candidates locally</button></div><div id="library-candidates"></div></details>
+ <div class="library-body"><section aria-label="Library results"><div class="library-pages"><span id="library-count">0 results</span><button id="library-prev" aria-label="Previous results">←</button><button id="library-next" aria-label="Next results">→</button></div><div id="library-results"></div></section>
+ <section id="library-detail" hidden aria-label="Source selection"><h3 id="library-title"></h3><p id="library-origin" class="library-origin"></p><p id="library-format"></p><canvas id="library-wave" aria-label="Sampled source overview. Drag to select; In and Out fields provide keyboard control."></canvas><div class="library-range"><label>In (seconds)<input id="library-in" type="number" min="0" step="any" value="0"></label><label>Out (seconds)<input id="library-out" type="number" min="0" step="any" value="0"></label></div><p id="library-selection"></p><label>Audition volume <output id="library-volume-value">-12 dB</output><input id="library-volume" type="range" min="-48" max="0" step="1" value="-12"></label><div class="library-actions"><button id="library-preview" disabled>Audition source</button><button id="library-stop">Stop</button><span id="library-preview-state" role="status">Stopped</span></div><label id="library-upgrade-label" class="library-upgrade"><input id="library-upgrade" type="checkbox"> Upgrade this project to schema 4 when adding. Older SoniLoom versions cannot open it. Undo restores the previous format.</label><p>Only the selected frames are embedded. Project playback uses the layer's processing chain and fits within the project duration.</p><button id="library-add" class="primary" disabled>Add selection to project</button></section></div>
+ <p id="library-feedback" role="status" aria-live="polite"></p>
 </dialog>
 <script type="module" src="src/app.mjs"></script>
 </body></html>
