@@ -1,3 +1,4 @@
+import {validateSourceRef} from './library-contract.mjs';
 import {decodeWav,fromBase64,sha256} from './wav.mjs';
 import {SAMPLE_FIELDS,sourceWindow} from './sample.mjs';
 import {ROOM_FIELDS,ROOM_RANGES} from './spatial.mjs';
@@ -16,7 +17,7 @@ export function createProject(){
  return {schemaVersion:3,engine:ENGINE,id:crypto.randomUUID(),name:'Orbital departure',duration:9,sampleRate:48000,layers:specs.map(([t,v],i)=>({...createLayer(t,i),...v})),assets:{}};
 }
 export function validateProject(p){
- if(!p||!((p.schemaVersion===1&&p.engine===LEGACY_ENGINE)||(p.schemaVersion===2&&p.engine===SPATIAL_ENGINE)||(p.schemaVersion===3&&p.engine===ENGINE)))throw Error('Unsupported project schema or engine version');
+ if(!p||!((p.schemaVersion===1&&p.engine===LEGACY_ENGINE)||(p.schemaVersion===2&&p.engine===SPATIAL_ENGINE)||([3,4].includes(p.schemaVersion)&&p.engine===ENGINE)))throw Error('Unsupported project schema or engine version');
  if(typeof p.id!=='string'||!p.id||typeof p.name!=='string'||p.name.length>100)throw Error('Invalid project identity');
  number(p.duration,.25,30,'Project duration');if(p.sampleRate!==48000)throw Error('Project sample rate must be 48000');
  if(!Array.isArray(p.layers)||p.layers.length>16)throw Error('Maximum 16 layers');
@@ -30,12 +31,13 @@ export function validateProject(p){
   if(!Number.isInteger(l.seed)||l.start+l.duration>p.duration+1e-8)throw Error('Layer must fit inside project duration; seed must be integer');
   for(const k of ROOM_FIELDS)if(Object.hasOwn(l,k)){if(p.schemaVersion===1)throw Error('Enable spatial upgrade before room edits on a legacy project');number(l[k],...ROOM_RANGES[k],k);}
   if(SAMPLE_FIELDS.some(k=>Object.hasOwn(l,k))){if(p.schemaVersion<3)throw Error('Enable sample editing upgrade before source selection');if(l.type!=='sample')throw Error('Source selection is only valid for sample layers');}
+  if(Object.hasOwn(l,'sourceRef')&&(p.schemaVersion!==4||l.type!=='sample'))throw Error('Library references require project schema 4 and a sample layer');
   if(typeof l.locked!=='boolean'||typeof l.reverse!=='boolean')throw Error('Invalid layer flags');
   if(l.type==='sample'&&(!l.assetId||!Object.hasOwn(p.assets,l.assetId)))throw Error('Missing source asset');
  }
  const decodedAssets={};let total=0;const entries=Object.entries(p.assets);if(entries.length>16)throw Error('Maximum 16 source assets');
  for(const [id,a] of entries){if(!/^[a-f0-9]{64}$/.test(id)||a?.hash!==id||typeof a.name!=='string'||a.name.length>200||typeof a.data!=='string')throw Error('Invalid asset identity');const d=decodeWav(fromBase64(a.data));decodedAssets[id]=d;total+=d.channels[0].length/d.sampleRate;}
- for(const l of p.layers)if(l.type==='sample'){const d=decodedAssets[l.assetId];sourceWindow(l,d.channels[0].length,d.sampleRate);}
+ for(const l of p.layers)if(l.type==='sample'){const d=decodedAssets[l.assetId];sourceWindow(l,d.channels[0].length,d.sampleRate);if(Object.hasOwn(l,'sourceRef'))validateSourceRef(l.sourceRef,l.assetId,d);}
  if(total>60)throw Error('Source assets exceed 60 seconds total');
  if(new TextEncoder().encode(JSON.stringify(p,null,2)).byteLength>70*1024*1024)throw Error('Project exceeds 70 MiB');return p;
 }
@@ -54,8 +56,9 @@ export class ProjectStore{
  }
  edit(id,patch,expected=this.generation){const allowed=new Set([...SAMPLE_FIELDS,...ROOM_FIELDS,'name','start','duration','gain','pan','frequency','endFrequency','cutoff','attack','release','texture','drive','delay','wet','rate','reverse','seed']);if(Object.keys(patch).some(k=>!allowed.has(k)))throw Error('Unsupported edit field');return this.apply(p=>{const l=p.layers.find(l=>l.id===id);if(!l)throw Error('Unknown layer');if(l.locked)throw Error(`Layer is locked: ${l.name}`);Object.assign(l,patch);},'Edited layer',expected);}
  enableSpatial(){return this.apply(p=>{if(p.schemaVersion===1){p.schemaVersion=2;p.engine=SPATIAL_ENGINE;}},'Enabled spatial authoring');}
- enableSampleEditing(){return this.apply(p=>{p.schemaVersion=3;p.engine=ENGINE;},'Enabled sample editing');}
+ enableSampleEditing(){return this.apply(p=>{p.schemaVersion=Math.max(3,p.schemaVersion);p.engine=ENGINE;},'Enabled sample editing');}
  lock(id,value){return this.apply(p=>{const l=p.layers.find(l=>l.id===id);if(!l)throw Error('Unknown layer');l.locked=value;},value?'Locked layer':'Unlocked layer',this.generation,{unlockId:value?null:id});}
+ addLibrary(layer,asset,sourceRef,expected=this.generation){return this.apply(p=>{p.schemaVersion=4;p.engine=ENGINE;p.assets[asset.hash]=clone(asset);p.layers.push({...clone(layer),sourceRef:clone(sourceRef)});},'Added library selection',expected);}
  add(layer,asset){return this.apply(p=>{if(asset)p.assets[asset.hash]=asset;p.layers.push(clone(layer));},'Added layer');}
  remove(id){return this.apply(p=>{p.layers=p.layers.filter(l=>l.id!==id);const used=new Set(p.layers.filter(l=>l.type==='sample').map(l=>l.assetId));for(const key of Object.keys(p.assets))if(!used.has(key))delete p.assets[key];},'Removed layer');}
  undo(){if(!this.canUndo)return;this.future.push({project:this._project,label:this.lastAction});const old=this.past.pop();this._project=old.project;this.lastAction=old.label;this.generation++;}
