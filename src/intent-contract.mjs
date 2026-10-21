@@ -99,7 +99,7 @@ export function validateContextTurn(turn, anchor) {
   id(turn.id); validateAnchor(turn.anchor);
   if (turn.anchor.projectId!==anchor.projectId || turn.anchor.sessionId!==anchor.sessionId || turn.anchor.generation>anchor.generation) fail('foreign turn');
   text(turn.userText,3000,'user text'); text(turn.assistantText,6000,'assistant text',false);
-  if (!['clarification','proposed','applied','discarded','outdated','failed','cancelled'].includes(turn.outcome)) fail('turn outcome');
+  if (!['clarification','proposed','applied','discarded','outdated','failed','cancelled','discussed','unavailable'].includes(turn.outcome)) fail('turn outcome');
   if (turn.outcome==='clarification') text(turn.assistantText,1000,'question');
   for (const refs of [turn.evidenceTurnIds,turn.preserveEvidenceTurnIds]) {strings(refs,64,200,'evidence');unique(refs);}
 }

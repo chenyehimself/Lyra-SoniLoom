@@ -8,3 +8,15 @@ export function cloudLibraryContext(raw){
  const measurement=x=>{if(x===null||x===undefined)return null;if(typeof x!=='number'||!Number.isFinite(x))throw Error('Invalid measurement');return x;};
  return {round:raw.round,maxRetrievalRounds:3,searchContract:{match:'all_terms',semanticExpansion:false,negationSyntax:false,advice:'Use one or two positive source keywords. Do not combine synonyms or include room, processing, or exclusion requirements. Zero matches: remove terms, do not add synonyms.'},candidates:raw.candidates.map(c=>{if(!/^candidate_[a-f0-9-]{36}$/.test(c.candidateId)||!Number.isFinite(c.duration)||c.duration<=0||c.duration>30||!Array.isArray(c.tags)||c.tags.length>12)throw Error('Invalid candidate summary');return {candidateId:c.candidateId,semanticSource:'bundle_metadata',name:text(c.name??'',200),description:text(c.description??'',600),matchedFields:(()=>{const fields=c.matchedFields??[];if(!Array.isArray(fields)||fields.length>5||fields.some(f=>!['name','description','tags','category','subcategory'].includes(f))||new Set(fields).size!==fields.length)throw Error('Invalid match evidence');return [...fields];})(),category:text(c.category,100),subcategory:text(c.subcategory,100),tags:c.tags.map(t=>text(t,100)),duration:c.duration,boundaryStatus:text(c.boundaryStatus,100),rangeTruncated:!!c.rangeTruncated,measurementScope:'whole_source_not_selected_clip',measurements:c.measurements?{peakDbfs:measurement(c.measurements.peakDbfs),rmsDbfs:measurement(c.measurements.rmsDbfs),crestDb:measurement(c.measurements.crestDb),activityThresholdDbfs:measurement(c.measurements.activityThresholdDbfs),bandEnergyEstimate:c.measurements.bandEnergyEstimate?{low:measurement(c.measurements.bandEnergyEstimate.low),mid:measurement(c.measurements.bandEnergyEstimate.mid),high:measurement(c.measurements.bandEnergyEstimate.high),method:'first-order-filter-residuals-not-orthogonal-spectrum'}:null}:null,limitations:['Names, descriptions and labels supplied by bundle; no semantic listening','Unknown recording space and noise identity']};}),lastSearch:raw.lastSearch?{query:text(raw.lastSearch.query,200),candidateCount:measurement(raw.lastSearch.candidateCount),totalMatches:measurement(raw.lastSearch.totalMatches),nextAction:raw.lastSearch.totalMatches===0?'remove_terms_and_try_one_source_keyword':'assess_returned_candidates'}:null};
 }
+
+// New agent endpoint only; legacy library decisions retain their contract.
+export const PROFESSIONAL_DECISION_SCHEMA=structuredClone(LIBRARY_DECISION_SCHEMA);
+PROFESSIONAL_DECISION_SCHEMA.properties.action.enum=['search','arrange','unavailable','clarify','discussion'];
+export function validateProfessionalDecision(d){
+ if(d?.action==='clarify'||d?.action==='discussion'){
+  validateDecision({...d,action:'unavailable'});
+  if(!d.proposal.message.trim()||d.action==='clarify'&&d.proposal.message.length>1000)throw Error('Invalid professional question/message');
+  return d;
+ }
+ return validateDecision(d);
+}

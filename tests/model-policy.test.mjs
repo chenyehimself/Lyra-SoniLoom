@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,readFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {Budget} from '../server/budget.mjs';
+import {createRoleProvider} from '../server/model-provider.mjs';
+import {ROLE_MODELS} from '../server/model-policy.mjs';
+const policies=Object.fromEntries(Object.entries(ROLE_MODELS).map(([role,model])=>[role,{role,model,verified:true,source:'test fixture only; not real pricing',prices:{input:1,output:2},reserveCents:20}]));
+const budget=()=>new Budget(join(mkdtempSync(join(tmpdir(),'soniloom-role-')),'ledger'));
+test('missing policy prevents calls and reservations',async()=>{const b=budget();let calls=0;const provider=createRoleProvider({key:'TEST',budget:b,fetchImpl:()=>calls++});assert.equal(provider.status().configured,false);await assert.rejects(provider.invoke('luna',{}),/policy/i);assert.equal(calls,0);assert.equal(b.status().requests,0);});
+test('roles dispatch correct models and retain historical ledger accounting',async()=>{const b=budget();b.reserve();const before=readFileSync(b.path,'utf8'),models=[];const provider=createRoleProvider({key:'TEST',budget:b,policies,fetchImpl:async(_,o)=>{models.push(JSON.parse(o.body).model);return new Response(JSON.stringify({status:'completed',usage:{input_tokens:10,output_tokens:10},output:[{type:'message',content:[{type:'output_text',text:'{}'}]}]}));}});await provider.invoke('luna',{});await provider.invoke('sol',{});assert.deepEqual(models,Object.values(ROLE_MODELS));assert.ok(readFileSync(b.path,'utf8').startsWith(before));assert.equal(new Budget(b.path).status().reservedUSD,.6);assert.equal(b.status().estimatedUSD,.00006);});
+test('failure retains role reservation and shared cap blocks before fetch',async()=>{const b=budget();for(let i=0;i<24;i++)b.reserve();let calls=0;const provider=createRoleProvider({key:'TEST',budget:b,policies,fetchImpl:async()=>{calls++;throw Error('PRIVATE');}});await assert.rejects(provider.invoke('luna',{}),/no retry/);await assert.rejects(provider.invoke('sol',{}),/budget/);assert.equal(calls,1);assert.equal(b.status().reservedUSD,5);});
+test('reservation must cover declared bounded payload cost before dispatch',async()=>{const b=budget();let calls=0;const provider=createRoleProvider({key:'TEST',budget:b,policies:{...policies,luna:{...policies.luna,reserveCents:1,prices:{input:10,output:100}}},fetchImpl:async()=>{calls++;}});await assert.rejects(provider.invoke('luna',{}),/reservation/i);assert.equal(calls,0);assert.equal(b.status().requests,0);});
+test('unexpected usage overrun durably blocks later reservations',()=>{const b=budget(),id=b.reserve(policies.luna);assert.throws(()=>b.settle(id,{input_tokens:1000000,output_tokens:1000000},'test'),/reservation/);const reopened=new Budget(b.path);assert.throws(()=>reopened.reserve(policies.sol),/overrun/i);});

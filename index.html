@@ -13,7 +13,7 @@
   <div id="chat-messages" class="chat-messages" role="log" aria-label="Conversation messages" aria-live="polite"></div>
   <form id="chat-form" class="composer">
    <label class="scope-label" for="ai-scope">Edit scope</label><select id="ai-scope" aria-label="AI edit scope"><option value="all">Whole sound</option><option id="selected-scope" value="selected">Selected layer</option></select>
-   <label class="library-consent"><input id="ai-library" type="checkbox"> Use library candidates · allow candidate tags and measurements to OpenAI (up to 3 searches)</label>
+   <label class="library-consent"><input id="ai-library" type="checkbox"> Use library candidates · allow candidate tags and measurements to OpenAI (up to 2 searches per request)</label>
    <div class="composer-box"><span class="composer-wave" aria-hidden="true">∿</span><label class="visually-hidden" for="prompt">Describe or refine your sound</label><textarea id="prompt" rows="2" maxlength="3000" placeholder="Describe a sound, or tell me what to change…"></textarea><button id="send-prompt" class="primary composer-send" type="submit" aria-label="Send to SoniLoom" disabled>↑</button></div>
    <button id="cancel-prompt" type="button" hidden>Cancel request</button>
    <div class="composer-actions"><span id="send-hint">Enter to send · Shift+Enter for a new line</span></div>

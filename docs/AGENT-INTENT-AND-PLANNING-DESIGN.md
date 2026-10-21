@@ -6,7 +6,7 @@ Implementation baseline: `140fc0c`, v0.6 foundation on package version 0.5.0.
 
 ## Implementation note — 2026-10-21
 
-The target runtime described below is still deferred. `src/intent-contract.mjs`, `src/agent-context.mjs` and `server/intent.mjs` now provide the internal Plan A foundation, tested through an injected mock invoker. They do not yet connect Luna to the UI or live provider coordinator. Catalog retrieval now includes embedded descriptions and title diversity, with bounded metadata evidence sent to the existing Sol planner. Current execution still permits four Sol calls and three retrieval rounds. No real-provider or human-listening acceptance is implied by these updates.
+Luna → Sol coordination is now connected to the HTTP route and Conversation UI, with mocked-model acceptance. The local coordinator enforces role counters, bounded retrieval, scope, cancellation and stale state. Live dispatch remains disabled because verified role billing policies are intentionally absent. No real-provider or human-listening acceptance is implied.
 
 ## 1. Decisions and scope
 
@@ -22,9 +22,9 @@ User-confirmed limits: Luna at most 3 calls, Sol at most 3 calls, local retrieva
 
 This document defines future behavior only. It does not change HTTP routes, configuration, schemas, existing spending guards or runtime behavior. No code, executable skill, model installation, library migration or paid verification is delivered by this document update. SoniLoom remains independent of Lyra.
 
-## 2. Current implementation versus target
+## 2. Pre-integration baseline versus target
 
-| Area | Current implementation | Target design |
+| Area | Pre-integration baseline | Target design |
 | --- | --- | --- |
 | Model use | Single Sol planner | Luna intent stage followed by Sol professional stage |
 | Context | Current project summary and recent bounded conversation | Explicit project/session-scoped facts, references, corrections and intent |
@@ -34,7 +34,7 @@ This document defines future behavior only. It does not change HTTP routes, conf
 | Clarification | No dedicated Luna stage | Luna asks when unclear and waits for the user |
 | Memory | Session-local conversation; no durable semantic memory | Project/session-scoped contextual records; persistence beyond this session is excluded from the initial design |
 
-The deployed application has not adopted the target model roles or limits. The older architecture in V0.6-ENGINEERING-DESIGN.md is historical/deferred direction; this document supersedes its future role division, context policy and call-budget direction only. It does not activate local semantic audio models, free routing or human annotation subsystems.
+The development implementation adopts these roles and limits through `/api/agent-turn`; legacy routes retain their earlier behavior. Deployment and real-provider activation are not part of this change. The older architecture in V0.6-ENGINEERING-DESIGN.md is historical/deferred direction; this document supersedes its future role division, context policy and call-budget direction only. It does not activate local semantic audio models, free routing or human annotation subsystems.
 
 ## 3. Flow and authority
 
@@ -154,6 +154,8 @@ Read-only source inspection on 2026-10-05, Lyra checkout HEAD `f59878e`. This is
 Inspection does not establish a reusable general memory subsystem or existing Luna-based context feature in Lyra. SoniLoom session-memory design is proposed here, not attributed to those files. Do not copy Lyra's server-owned DAW/Run schema: SoniLoom's editable project currently lives in the browser. No shared service, account, database or runtime dependency is introduced.
 
 ## 10. Skill specifications and future implementation sequence
+
+English application skill v1 is now loaded by `server/skills.mjs` into Luna and Sol requests. It includes intent/planning rules, three professional references and a separate scenario matrix. Runtime references are loaded; the scenario matrix is not sent automatically. This has offline/mock acceptance only, not real-model or listening acceptance.
 
 Skill specifications consist of instructions, allowed tools, input/output contracts, stop conditions and representative examples. They are not just Markdown prompts; local validation enforces hard boundaries.
 
