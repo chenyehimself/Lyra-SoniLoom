@@ -2,6 +2,8 @@
 
 This documents the current development implementation, not a stable external SDK. All endpoints belong to the local Node server. No Lyra server, Drive API, cloud audio upload or new agent framework is required. The browser renders audio locally; a successful planning response does not apply a project revision or prove sound quality.
 
+For proposed Luna/Sol responsibilities and internal contracts, see [the next-stage design](AGENT-INTENT-AND-PLANNING-DESIGN.md). Internal intent/context modules exist with mock-tested validation and an injected invoker, but are not connected to HTTP routes, UI or production provider dispatch. They are not configuration options. The current single-Sol model and four-call limit documented here remain accurate for the implementation.
+
 ## Configuration and access
 
 - Node.js >=20; no npm dependencies to install. Run `npm start` from the clone root.
@@ -25,7 +27,7 @@ The request fields are `prompt`, `project`, `scope`, `history` and optional `rea
 
 A proposal is `{message, operations}`. Each operation has `kind`, `layerId`, `source`, and `changes: [{field, value}]`. The permitted kinds are `add`, `edit`, `remove`, `project`; source types and parameter allowlists come from `PROPOSAL_SCHEMA` and `EDIT_FIELDS` in `src/ai-contract.mjs`. Do not invent EQ/routing operations absent from that contract.
 
-Library planning uses `search`, `arrange` and `unavailable` decisions defined in `src/library-ai-contract.mjs`. The same model is called at most four times, with at most three local retrieval rounds. Selected-layer scope cannot search or add sources. Candidates are temporary handles, not persistent asset IDs. Cloud candidate summaries exclude audio, source paths and full provenance; normal project context still includes asset names.
+Library planning uses `search`, `arrange` and `unavailable` decisions defined in `src/library-ai-contract.mjs`. The same model is called at most four times, with at most three local retrieval rounds. Selected-layer scope cannot search or add sources. Candidates are temporary handles, not persistent asset IDs. Cloud candidate summaries include display names (200 characters), embedded descriptions (600 characters), matched metadata fields, labels and measurements. They exclude audio, source-path fields and full provenance; normal project context still includes asset names. Catalog text is evidence supplied by the bundle, not acoustic recognition.
 
 `src/arrangement.mjs` materializes chosen clips and prepares a detached proposal. The browser renders its preview; `prepareProposal()` / `applyProposal()` enforce validation, locks, stale-generation checks and atomic history. Callers must preserve the existing schema acceptance and Apply/Discard flow. The server does not own the editable browser project.
 
@@ -57,7 +59,7 @@ All paths below have the prefix `/api/library/`. JSON responses use HTTP 200 on 
 
 An asset reference is `{bundleId, version, assetId, variant}` copied from a catalog entry. Do not interchange transport `version` and persisted project provenance `bundleVersion`. Frame ranges are zero-based with an exclusive end. Use exact catalog identities, not guessed filenames.
 
-Retrieval requires all query terms to match catalog words/prefixes; there is no semantic expansion or negation syntax. Start with one or two source keywords such as `pistol`, not a full scene description. No matches should prompt removing terms, not adding synonyms. Each search considers five sources and up to two heuristic intervals per source. Automatic analysis is limited to sources <=60 seconds and <=120 combined seconds per search. Sessions expire after 20 minutes and are invalidated by library-root/catalog changes. Recreate them after server restart.
+Retrieval reads the current catalog in memory and requires all query terms to match name/category/tag/embedded-description words or prefixes; there is no semantic expansion or negation syntax. Start with one or two source keywords such as `pistol`, not a full scene description. No matches should prompt removing terms, not adding synonyms. Distinct normalized titles are promoted before additional takes of the same title. Sol may broaden within the relevant sound family while preserving the requested event and explicit identity constraints, and must explain substitutions and uncertainty. Each search considers five sources and up to two heuristic intervals per source. Automatic analysis is limited to sources <=60 seconds and <=120 combined seconds per search. Sessions expire after 20 minutes and are invalidated by library-root/catalog changes. Recreate them after server restart.
 
 Extraction retains current limits: supported mono/stereo WAV, <=30 seconds and 24 MiB per clip. Analysis measurements describe the whole source, not necessarily the extracted interval. A candidate is not proof of semantic identity, correct event boundaries or audible suitability.
 
@@ -68,7 +70,7 @@ Extraction retains current limits: supported mono/stereo WAV, <=30 seconds and 2
 | HTTP guards and route dispatch | `server.mjs`, `server/library-http.mjs` |
 | Catalog, installation and source lookup | `server/library.mjs`, `server/library-zip.mjs`, `server/library-audio.mjs` |
 | Local measurement and derived records/jobs | `server/audio-analysis.mjs`, `server/analysis-store.mjs` |
-| Candidate index lookup and sessions | `server/library-search.mjs` |
+| Catalog evidence ranking and candidate sessions | `server/library-search.mjs` |
 | Provider contract and bounded orchestration | `server/ai.mjs`, `src/library-ai-contract.mjs`, `server/arrangement.mjs` |
 | Preview, revision validation and local application | `src/arrangement.mjs`, `src/ai-contract.mjs`, `src/project.mjs`, `src/conversation.mjs` |
 | Analysis/search UI | `src/library-intelligence.mjs` |

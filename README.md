@@ -6,17 +6,28 @@ This development branch contains the v0.5 library importer and v0.6 analysis/arr
 
 The implemented architecture is one cloud planning model (`gpt-6.1-sol`) plus local analysis, retrieval and execution tools. Separate material-evaluation and arrangement skills are discussion proposals, not implemented agents. The owner found the latest pistol example unconvincing as both a gunshot and a garage scene; successful rendering does not establish sound-design quality.
 
+Next-stage design: [Intent, Context and Professional Planning](docs/AGENT-INTENT-AND-PLANNING-DESIGN.md) describes Luna for intent/context and Sol for professional planning within one agent. Internal intent/context contracts, session-scoped reference handling and an injected Luna service are implemented and tested with mocked responses. They are not connected to the running UI or provider coordinator. Integrated clarification and separate Luna/Sol call ceilings remain planned. The setup below still configures the existing single-Sol application.
+
+## Current progress
+
+- **Available:** editable procedural and WAV sources, local rendering/export, spatial controls, source-window editing, library import, local numeric analysis, bounded catalog retrieval, and reviewable Sol proposals with Apply/Undo.
+- **Latest retrieval update:** searches names, categories, tags and embedded descriptions; promotes distinct titles instead of allowing repeated takes to fill the shortlist. Bounded catalog evidence reaches Sol so it can distinguish a requested event from related actions and explain plausible substitutions. This is lexical retrieval plus model reasoning, not audio recognition.
+- **Internal foundation only:** Luna intent/context modules and validators. The running app still uses a single Sol planner, at most four provider calls and three retrieval rounds.
+- **Not yet verified:** real-provider selection quality after the retrieval update and convincing gunshot/garage listening results. Mock tests do not establish either.
+
+This branch includes the current development work; `main` remains the earlier baseline until the pull request is merged. Source and included synthetic examples are available under the [MIT license](LICENSE). **Private sound-library bundles, their catalogs, purchased recordings, credentials and local runtime data are not distributed with this repository.** The MIT license does not grant rights to separately obtained sound packs. Public contributors can use procedural sources and their own authorized WAV files without the team library.
+
 ## Run
 
 Requires Node.js 20 or newer and a modern desktop browser with Web Audio, module workers, IndexedDB and `structuredClone`.
 
 ```sh
-git clone --branch codex/feat-local-library-import-20261004 https://github.com/chenyehimself/Lyra-SoniLoom.git
+git clone --branch codex/feat-library-semantic-retrieval-20261007 https://github.com/chenyehimself/Lyra-SoniLoom.git
 cd Lyra-SoniLoom
-npm start
+SONILOOM_DISABLE_AI=1 npm start
 ```
 
-Open **http://127.0.0.1:8795/**. No dependency installation is required. Manual editing works without API access. For optional AI editing, copy `.env.example` to `.env.local` and set your own `OPENAI_API_KEY` before starting the server. Alternatively, supply it through the server environment. Credentials are loaded only by the local server, never sent to the browser. The server binds only to loopback. Set `PORT` to use another port. Keep the terminal running while using the app.
+Open **http://127.0.0.1:8795/**. No dependency installation is required. Manual editing works without API access. For optional AI editing, copy `.env.example` to `.env.local` and set your own `OPENAI_API_KEY` before starting the server. Alternatively, supply it through the server environment. Restart with `npm start` without `SONILOOM_DISABLE_AI=1` when you explicitly want paid AI access. Credentials are loaded only by the local server, never sent to the browser. The server binds only to loopback. Set `PORT` to use another port. Keep the terminal running while using the app.
 
 ```sh
 npm test
@@ -73,7 +84,7 @@ The header holds the current sound name and project actions. **Add a source** ex
 
 AI uses `gpt-6.1-sol` with the Responses API and structured JSON output. Prompts, the last five conversation turns, layer parameters, bounded local audio measurements and asset names/IDs leave the device; original audio bytes do not. The provider cannot listen to or identify uploaded recordings in this version. `store:false` is requested; this is not a promise of zero provider retention. No external audio generation, provider tools, model training or arbitrary code execution is used.
 
-The local live-test budget is USD 5 **across restarts**, enforced by `work/ai-budget.jsonl`. Each new Sol call permanently reserves USD 0.20; a fresh ledger admits at most 25 attempts. Existing mini calls retain their original USD 0.15 reservations and remain part of the same cumulative cap. Sol usage is estimated at USD 2 per million input tokens and USD 10 per million output tokens. Successful token usage is displayed separately as an estimate. Failed/unknown calls retain their reservation. There are no automatic retries or model fallbacks. Do not delete/reset the ledger to continue testing; increasing the budget requires a new authorization. This guard covers calls recorded in this checkout's ledger, not other clients or checkouts using the same OpenAI project. The ledger is intentionally excluded from Git; cloning creates no shared budget state. Do not run multiple copies with the same key under the assumption that their allowances are cumulative.
+The local live-test budget is USD 5 **across restarts**, enforced by `work/ai-budget.jsonl`. Each new Sol call permanently reserves USD 0.20; a fresh ledger admits at most 25 attempts. Existing mini calls retain their original USD 0.15 reservations and remain part of the same cumulative cap. The code currently estimates Sol usage at USD 2 per million input tokens and USD 10 per million output tokens; these are implementation constants, not a guarantee of current provider pricing. Successful token usage is displayed separately as an estimate. Failed/unknown calls retain their reservation. There are no automatic retries or model fallbacks. Do not delete/reset the ledger to continue testing; increasing the budget requires a new authorization. This guard covers calls recorded in this checkout's ledger, not other clients or checkouts using the same OpenAI project. The ledger is intentionally excluded from Git; cloning creates no shared budget state. Do not run multiple copies with the same key under the assumption that their allowances are cumulative.
 
 Provider requests are serialized, bounded to 64 KiB including schema/instructions, limited to 4,096 output tokens and timed out after 60 seconds. Charges are estimated using uncached input rates, conservatively ignoring any caching discount. The UI's ready indicator confirms server configuration; each completed response supplies actual provider evidence.
 
@@ -166,7 +177,7 @@ This local development extension uses **existing bundle labels**, not an audio r
 2. Open **Library → Local analysis & candidate search**. Select a supported installed recording and click **Analyze selected**, or use **Analyze this page · first 20** for a bounded batch.
 3. **Refresh status** shows progress and the selected source's measurements. **Cancel analysis** stops the batch; **Resume analysis** resumes incomplete files after cancellation, partial failure or a server restart. Completed files keep their results. Resolve a disk/permission problem before resuming. A source file interrupted halfway is restarted from its beginning.
 4. **Rebuild index** recreates the lookup index from catalog entries and completed records; it does not scan audio. Original names and tags remain catalog metadata.
-5. Enter bundle keywords such as `pistol`, `metal door` or `rain`, then click **Find candidates locally**. This searches across the installed library, independently of the ordinary browse filters. All query terms must match catalog words/prefixes; this is lexical retrieval, not multilingual semantic search. No match means no substitution.
+5. Enter bundle keywords such as `pistol`, `metal door` or `rain`, then click **Find candidates locally**. This searches names, categories, tags and embedded descriptions across the installed library, independently of the ordinary browse filters. All query terms must match catalog words/prefixes; this is lexical retrieval, not multilingual semantic search. Distinct normalized titles receive preference over repeated takes. A zero-result local query returns no candidates; the planner may broaden a later query within the relevant sound family while preserving the requested action and explicit identity constraints.
 6. Inspect candidate intervals, then click **Prepare editable preview**. A detached proposal appears in Conversation with source-frame evidence, a WAV preview and exact changes. The current project remains unchanged. Accept the schema 4 notice if present and click **Apply changes**, or **Discard**. Undo restores the previous project in one step.
 
 Peak/RMS and band-energy estimates describe the entire source, not necessarily the selected clip. Energy-event boundaries are approximate; they do not prove that an event is a gunshot or that background noise is absent. Long continuous sounds may be shortened to fit import limits; inspect the displayed range. A preview that clips is rejected without applying changes. For a local candidate, use the existing manual library controls to choose a different range or level if necessary.
@@ -175,7 +186,7 @@ The scheduler accepts one batch at a time, with at most 20 files. Each search co
 
 ### Optional cloud arrangement
 
-Configure your existing API key as described above. In Conversation, check **Use library candidates** to permit the new workflow. This checkbox is session-local and off after reload. It allows OpenAI to receive your request, recent conversation/project context, and a bounded set of temporary candidate IDs, categories/tags, interval durations and numerical measurement summaries. Candidate audio, full catalog, source hashes/provenance, original filenames and disk paths are not included in the candidate payload. Existing project asset names remain part of the normal project context.
+Configure your existing API key as described above. In Conversation, check **Use library candidates** to permit the new workflow. This checkbox is session-local and off after reload. It allows OpenAI to receive your request, recent conversation/project context, and a bounded set of temporary candidate IDs, display names (up to 200 characters), embedded descriptions (up to 600 characters), matched metadata fields, categories/tags, interval durations and numerical measurement summaries. These texts are untrusted catalog claims, not verified listening results. Candidate audio, full catalog, source hashes/provenance, original source-path fields and disk-path fields are not included in the candidate payload. Existing project asset names remain part of the normal project context.
 
 The model may request **at most three retrieval rounds including the first**, then propose supported edits or explain why suitable material is missing. A complete request may require up to four provider calls. Each call uses the existing durable budget reservation; a three-round search limit is not a separate spending allowance. There is no automatic retry or model fallback. Selected-layer scope cannot search for or add new sources. For parameter-only follow-ups, the model can propose edits immediately without searching.
 
@@ -234,6 +245,7 @@ The project has local IndexedDB recovery. Recovery is browser/origin-specific an
 | `src/ai-contract.mjs`, `src/conversation.mjs` | Validated atomic edit proposals, exact review deltas and conversation UI |
 | `server/audio-analysis.mjs`, `server/analysis-store.mjs`, `server/library-search.mjs` | Local measurements, resumable jobs, index and bounded candidate retrieval |
 | `server/arrangement.mjs`, `src/library-ai-contract.mjs`, `src/arrangement.mjs`, `src/library-intelligence.mjs` | Cloud search coordination, summary contract, detached preview and local analysis UI |
+| `server/intent.mjs`, `src/intent-contract.mjs`, `src/agent-context.mjs` | Internal intent/context foundation; not wired into the running application |
 | `tests/` | State, DSP, asset integrity, export and regression checks |
 | `scripts/render-examples.mjs`, `outputs/` | Reproducible examples and acceptance evidence |
 
